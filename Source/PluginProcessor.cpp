@@ -19,13 +19,36 @@ TAMPERAudioProcessor::TAMPERAudioProcessor()
                       #endif
                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
                      #endif
-                       )
+                       ), treeState(*this, nullptr, "PARAMETERS", createParameterLayout()), overSamplingModule(2, 2, juce::dsp::Oversampling<float>::filterHalfBandPolyphaseIIR)
 #endif
 {
+    treeState.addParameterListener("oversample", this);
 }
 
 TAMPERAudioProcessor::~TAMPERAudioProcessor()
 {
+    treeState.removeParameterListener("oversample", this);
+}
+
+juce::AudioProcessorValueTreeState::ParameterLayout TAMPERAudioProcessor::createParameterLayout()
+{
+    std::vector <std::unique_ptr<juce::RangedAudioParameter>> params;
+    
+    params.reserve(9);
+    
+    auto pOSToggle = std::make_unique<juce::AudioParameterBool>("oversample", "Oversample", false);
+    
+    params.push_back(std::move(pOSToggle));
+    
+    return { params.begin(), params.end() };
+}
+
+void TAMPERAudioProcessor::parameterChanged(const juce::String &parameterID, float newValue)
+{
+    if (parameterID == "oversample")
+    {
+        osToggle = newValue;
+    }
 }
 
 //==============================================================================
@@ -93,8 +116,14 @@ void TAMPERAudioProcessor::changeProgramName (int index, const juce::String& new
 //==============================================================================
 void TAMPERAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
-    // Use this method as the place to do any pre-playback
-    // initialisation that you need..
+    juce::dsp::ProcessSpec spec;
+    spec.sampleRate = sampleRate;
+    spec.maximumBlockSize = samplesPerBlock;
+    spec.numChannels = getTotalNumInputChannels();
+    
+    //Oversampling prep
+    osToggle = *treeState.getRawParameterValue("oversample");
+    overSamplingModule.initProcessing(samplesPerBlock);
 }
 
 void TAMPERAudioProcessor::releaseResources()
@@ -135,27 +164,46 @@ void TAMPERAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce:
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
 
-    // In case we have more outputs than inputs, this code clears any output
-    // channels that didn't contain input data, (because these aren't
-    // guaranteed to be empty - they may contain garbage).
-    // This is here to avoid people getting screaming feedback
-    // when they first compile a plugin, but obviously you don't need to keep
-    // this code if your algorithm always overwrites all the output channels.
+    
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
-
-    // This is the place where you'd normally do the guts of your plugin's
-    // audio processing...
-    // Make sure to reset the state if your inner loop is processing
-    // the samples and the outer loop is handling the channels.
-    // Alternatively, you can process the samples with the channels
-    // interleaved by keeping the same state.
-    for (int channel = 0; channel < totalNumInputChannels; ++channel)
-    {
-        auto* channelData = buffer.getWritePointer (channel);
-
-        // ..do something to the data...
+    
+    //My two audioblocks
+    juce::dsp::AudioBlock<float> block (buffer);
+    juce::dsp::AudioBlock<float> upSampledBlock (buffer);
+    
+    //if oversampling on...
+    if(osToggle)
+    {   //increase sample rate
+        upSampledBlock = overSamplingModule.processSamplesUp(block);
+        
+        for(int sample = 0; sample < upSampledBlock.getNumSamples(); ++sample)
+        {
+            for (int ch = 0; ch < upSampledBlock.getNumChannels(); ++ch)
+            {
+                float* data = upSampledBlock.getChannelPointer(ch);
+                
+                data[sample] *= 1.0;
+            }
+        }
+        //decrease sample rate back down
+        overSamplingModule.processSamplesDown(block);
     }
+    
+    //if oversampling is off...
+    else
+    {
+        for(int sample = 0; sample < block.getNumSamples(); ++sample)
+        {
+            for (int ch = 0; ch < block.getNumChannels(); ++ch)
+            {
+                float* data = block.getChannelPointer(ch);
+                
+                data[sample] *= 1.0;
+            }
+        }
+    }
+    
 }
 
 //==============================================================================
@@ -166,7 +214,8 @@ bool TAMPERAudioProcessor::hasEditor() const
 
 juce::AudioProcessorEditor* TAMPERAudioProcessor::createEditor()
 {
-    return new TAMPERAudioProcessorEditor (*this);
+//    return new TAMPERAudioProcessorEditor (*this);
+    return new juce::GenericAudioProcessorEditor (*this);
 }
 
 //==============================================================================

@@ -13,7 +13,7 @@
 //==============================================================================
 /**
 */
-class TAMPERAudioProcessor  : public juce::AudioProcessor
+class TAMPERAudioProcessor  : public juce::AudioProcessor, juce::AudioProcessorValueTreeState::Listener
 {
 public:
     //==============================================================================
@@ -53,7 +53,18 @@ public:
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
 
+    juce::AudioProcessorValueTreeState treeState;
+    
 private:
+    
+    //oversampling variable and module intialisation
+    bool osToggle { false };
+    juce::dsp::Oversampling<float> overSamplingModule;
+    
+    //parameter layout and change functions
+    juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
+    void parameterChanged (const juce::String& parameterID, float newValue) override;
+    
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (TAMPERAudioProcessor)
 };
