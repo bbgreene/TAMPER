@@ -194,7 +194,7 @@ void TAMPERAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce:
             {
                 float* data = upSampledBlock.getChannelPointer(ch);
                 
-                data[sample] = softClipData(data[sample]);
+                data[sample] = tubeData(data[sample]);
             }
         }
         //decrease sample rate back down
@@ -210,17 +210,44 @@ void TAMPERAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce:
             {
                 float* data = block.getChannelPointer(ch);
                 
-                data[sample] = softClipData(data[sample]);
+                data[sample] = tubeData(data[sample]);
             }
         }
     }
     
 }
 
+// softclip algorithim (rounded)
 float TAMPERAudioProcessor::softClipData(float sample)
 {
     sample *= rawInput * 1.6;
     return piDivisor * std::atan(sample);
+}
+
+// hardclip algorithim (any sample above 1 or -1 will be squared)
+float TAMPERAudioProcessor::hardClipData(float sample)
+{
+    sample *= rawInput;
+    
+    if(std::abs(sample) > 1.0)
+    {
+        sample *= 1.0 / std::abs(sample);
+    }
+    return sample;
+}
+
+
+float TAMPERAudioProcessor::tubeData(float sample)
+{
+    if(sample < 0.0)
+    {
+        sample = softClipData(sample);
+    }
+    else if (std::abs(sample) > 1.0)
+    {
+        sample = hardClipData(sample);
+    }
+    return softClipData(sample);
 }
 
 //==============================================================================

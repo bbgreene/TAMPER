@@ -67,6 +67,8 @@ private:
     static constexpr float piDivisor = 2.0 / juce::MathConstants<float>::pi;
     
     float softClipData (float sample);
+    float hardClipData (float sample);
+    float tubeData (float sample);
     
     //parameter layout and change functions
     juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
