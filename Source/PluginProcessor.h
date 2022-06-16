@@ -61,11 +61,25 @@ private:
     bool osToggle { false };
     juce::dsp::Oversampling<float> overSamplingModule;
     
+    //Drive variables
     float dBInput { 0.0 };
     float rawInput { 1.0 };
     
-    static constexpr float piDivisor = 2.0 / juce::MathConstants<float>::pi;
+    //Distortion models selection class
+    enum class DisModels
+    {
+        kSoft,
+        KHard,
+        KTube
+    };
     
+    //Distortion models selection class instantiation
+    DisModels disModel = DisModels::kSoft;
+    
+    //constant for distortion data
+    static constexpr float piDivisor = 2.0 / juce::MathConstants<float>::pi;
+
+    // distortion data
     float softClipData (float sample);
     float hardClipData (float sample);
     float tubeData (float sample);

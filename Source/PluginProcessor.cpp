@@ -24,25 +24,31 @@ TAMPERAudioProcessor::TAMPERAudioProcessor()
 {
     treeState.addParameterListener("oversample", this);
     treeState.addParameterListener("drive", this);
+    treeState.addParameterListener("model", this);
 }
 
 TAMPERAudioProcessor::~TAMPERAudioProcessor()
 {
     treeState.removeParameterListener("oversample", this);
     treeState.removeParameterListener("drive", this);
+    treeState.removeParameterListener("model", this);
 }
 
 juce::AudioProcessorValueTreeState::ParameterLayout TAMPERAudioProcessor::createParameterLayout()
 {
     std::vector <std::unique_ptr<juce::RangedAudioParameter>> params;
     
+    juce::StringArray disModels = { "Soft", "Hard", "Tube" };
+    
     params.reserve(9);
     
     auto pOSToggle = std::make_unique<juce::AudioParameterBool>("oversample", "Oversample", false);
     auto pDrive = std::make_unique<juce::AudioParameterFloat>("drive", "Drive", 0.0, 24.0, 0.0);
+    auto pModels = std::make_unique<juce::AudioParameterChoice>("model", "Model", disModels, 0);
     
     params.push_back(std::move(pOSToggle));
     params.push_back(std::move(pDrive));
+    params.push_back(std::move(pModels));
     
     return { params.begin(), params.end() };
 }
@@ -57,6 +63,16 @@ void TAMPERAudioProcessor::parameterChanged(const juce::String &parameterID, flo
     {
         dBInput = newValue;
         rawInput = juce::Decibels::decibelsToGain(dBInput);
+    }
+    if (parameterID == "model")
+    {
+        switch (static_cast<int>(newValue))
+        {
+            case 0: disModel = DisModels::kSoft; break;
+            case 1: disModel = DisModels::KHard; break;
+            case 2: disModel = DisModels::KTube; break;
+
+        }
     }
 }
 
@@ -135,6 +151,8 @@ void TAMPERAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock
     overSamplingModule.initProcessing(samplesPerBlock);
     
     rawInput = juce::Decibels::decibelsToGain(static_cast<float>(*treeState.getRawParameterValue("drive")));
+    
+    disModel = static_cast<DisModels>(treeState.getRawParameterValue("model")->load());
 }
 
 void TAMPERAudioProcessor::releaseResources()
@@ -194,7 +212,12 @@ void TAMPERAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce:
             {
                 float* data = upSampledBlock.getChannelPointer(ch);
                 
-                data[sample] = tubeData(data[sample]);
+                switch(disModel)
+                {
+                    case DisModels::kSoft: data[sample] = softClipData(data[sample]); break;
+                    case DisModels::KHard: data[sample] = hardClipData(data[sample]); break;
+                    case DisModels::KTube: data[sample] = tubeData(data[sample]); break;
+                }
             }
         }
         //decrease sample rate back down
@@ -210,7 +233,12 @@ void TAMPERAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce:
             {
                 float* data = block.getChannelPointer(ch);
                 
-                data[sample] = tubeData(data[sample]);
+                switch(disModel)
+                {
+                    case DisModels::kSoft: data[sample] = softClipData(data[sample]); break;
+                    case DisModels::KHard: data[sample] = hardClipData(data[sample]); break;
+                    case DisModels::KTube: data[sample] = tubeData(data[sample]); break;
+                }
             }
         }
     }
@@ -236,18 +264,22 @@ float TAMPERAudioProcessor::hardClipData(float sample)
     return sample;
 }
 
-
+// tube algorithim (postive values will hardclip, negative values will softclip)
 float TAMPERAudioProcessor::tubeData(float sample)
 {
-    if(sample < 0.0)
+    sample *= rawInput * 1.6;
+    
+    if (sample < 0.0)
     {
-        sample = softClipData(sample);
+        sample = piDivisor * std::atan(sample);
     }
     else if (std::abs(sample) > 1.0)
     {
+        // if true then this will output 1 (or -1)
         sample = hardClipData(sample);
     }
-    return softClipData(sample);
+    sample = piDivisor * std::atan(sample);
+    return sample;
 }
 
 //==============================================================================
