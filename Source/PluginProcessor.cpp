@@ -23,11 +23,13 @@ TAMPERAudioProcessor::TAMPERAudioProcessor()
 #endif
 {
     treeState.addParameterListener("oversample", this);
+    treeState.addParameterListener("drive", this);
 }
 
 TAMPERAudioProcessor::~TAMPERAudioProcessor()
 {
     treeState.removeParameterListener("oversample", this);
+    treeState.removeParameterListener("drive", this);
 }
 
 juce::AudioProcessorValueTreeState::ParameterLayout TAMPERAudioProcessor::createParameterLayout()
@@ -37,8 +39,10 @@ juce::AudioProcessorValueTreeState::ParameterLayout TAMPERAudioProcessor::create
     params.reserve(9);
     
     auto pOSToggle = std::make_unique<juce::AudioParameterBool>("oversample", "Oversample", false);
+    auto pDrive = std::make_unique<juce::AudioParameterFloat>("drive", "Drive", 0.0, 24.0, 0.0);
     
     params.push_back(std::move(pOSToggle));
+    params.push_back(std::move(pDrive));
     
     return { params.begin(), params.end() };
 }
@@ -48,6 +52,11 @@ void TAMPERAudioProcessor::parameterChanged(const juce::String &parameterID, flo
     if (parameterID == "oversample")
     {
         osToggle = newValue;
+    }
+    if (parameterID == "drive")
+    {
+        dBInput = newValue;
+        rawInput = juce::Decibels::decibelsToGain(dBInput);
     }
 }
 
@@ -124,6 +133,8 @@ void TAMPERAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock
     //Oversampling prep
     osToggle = *treeState.getRawParameterValue("oversample");
     overSamplingModule.initProcessing(samplesPerBlock);
+    
+    rawInput = juce::Decibels::decibelsToGain(static_cast<float>(*treeState.getRawParameterValue("drive")));
 }
 
 void TAMPERAudioProcessor::releaseResources()
@@ -183,7 +194,7 @@ void TAMPERAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce:
             {
                 float* data = upSampledBlock.getChannelPointer(ch);
                 
-                data[sample] *= 1.0;
+                data[sample] = softClipData(data[sample]);
             }
         }
         //decrease sample rate back down
@@ -199,11 +210,17 @@ void TAMPERAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce:
             {
                 float* data = block.getChannelPointer(ch);
                 
-                data[sample] *= 1.0;
+                data[sample] = softClipData(data[sample]);
             }
         }
     }
     
+}
+
+float TAMPERAudioProcessor::softClipData(float sample)
+{
+    sample *= rawInput * 1.6;
+    return piDivisor * std::atan(sample);
 }
 
 //==============================================================================

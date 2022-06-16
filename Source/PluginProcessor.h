@@ -61,6 +61,13 @@ private:
     bool osToggle { false };
     juce::dsp::Oversampling<float> overSamplingModule;
     
+    float dBInput { 0.0 };
+    float rawInput { 1.0 };
+    
+    static constexpr float piDivisor = 2.0 / juce::MathConstants<float>::pi;
+    
+    float softClipData (float sample);
+    
     //parameter layout and change functions
     juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
     void parameterChanged (const juce::String& parameterID, float newValue) override;
