@@ -84,6 +84,14 @@ private:
     float hardClipData (float sample);
     float tubeData (float sample);
     
+    //filter variables
+    float highPassFilter { 20.0 };
+    float lowPassFilter { 1000.0 };
+    
+    //filter instantations
+    juce::dsp::LinkwitzRileyFilter<float> highPassFilterPre;
+    juce::dsp::LinkwitzRileyFilter<float> lowPassFilterPost;
+    
     //parameter layout and change functions
     juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
     void parameterChanged (const juce::String& parameterID, float newValue) override;

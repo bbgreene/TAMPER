@@ -25,6 +25,8 @@ TAMPERAudioProcessor::TAMPERAudioProcessor()
     treeState.addParameterListener("oversample", this);
     treeState.addParameterListener("drive", this);
     treeState.addParameterListener("model", this);
+    treeState.addParameterListener("high pass", this);
+    treeState.addParameterListener("low pass", this);
 }
 
 TAMPERAudioProcessor::~TAMPERAudioProcessor()
@@ -32,6 +34,8 @@ TAMPERAudioProcessor::~TAMPERAudioProcessor()
     treeState.removeParameterListener("oversample", this);
     treeState.removeParameterListener("drive", this);
     treeState.removeParameterListener("model", this);
+    treeState.removeParameterListener("high pass", this);
+    treeState.removeParameterListener("low pass", this);
 }
 
 juce::AudioProcessorValueTreeState::ParameterLayout TAMPERAudioProcessor::createParameterLayout()
@@ -45,10 +49,14 @@ juce::AudioProcessorValueTreeState::ParameterLayout TAMPERAudioProcessor::create
     auto pOSToggle = std::make_unique<juce::AudioParameterBool>("oversample", "Oversample", false);
     auto pDrive = std::make_unique<juce::AudioParameterFloat>("drive", "Drive", 0.0, 24.0, 0.0);
     auto pModels = std::make_unique<juce::AudioParameterChoice>("model", "Model", disModels, 0);
+    auto pHighPass = std::make_unique<juce::AudioParameterFloat>("high pass", "High Pass", juce::NormalisableRange<float> (20.0, 20000.0, 1.0, 0.22), 20.0);
+    auto pLowPass = std::make_unique<juce::AudioParameterFloat>("low pass", "Low Pass", juce::NormalisableRange<float> (20.0, 20000.0, 1.0, 0.22), 20000.0);
     
     params.push_back(std::move(pOSToggle));
     params.push_back(std::move(pDrive));
     params.push_back(std::move(pModels));
+    params.push_back(std::move(pHighPass));
+    params.push_back(std::move(pLowPass));
     
     return { params.begin(), params.end() };
 }
@@ -73,6 +81,16 @@ void TAMPERAudioProcessor::parameterChanged(const juce::String &parameterID, flo
             case 2: disModel = DisModels::KTube; break;
 
         }
+    }
+    if (parameterID == "high pass")
+    {
+        highPassFilter = newValue;
+        highPassFilterPre.setCutoffFrequency(highPassFilter);
+    }
+    if (parameterID == "low pass")
+    {
+        lowPassFilter = newValue;
+        lowPassFilterPost.setCutoffFrequency(lowPassFilter);
     }
 }
 
@@ -153,6 +171,14 @@ void TAMPERAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock
     rawInput = juce::Decibels::decibelsToGain(static_cast<float>(*treeState.getRawParameterValue("drive")));
     
     disModel = static_cast<DisModels>(treeState.getRawParameterValue("model")->load());
+    
+    highPassFilterPre.prepare(spec);
+    highPassFilterPre.setType(juce::dsp::LinkwitzRileyFilterType::highpass);
+    highPassFilterPre.setCutoffFrequency(treeState.getRawParameterValue("high pass")->load());
+    
+    lowPassFilterPost.prepare(spec);
+    lowPassFilterPost.setType(juce::dsp::LinkwitzRileyFilterType::lowpass);
+    lowPassFilterPost.setCutoffFrequency(treeState.getRawParameterValue("low pass")->load());
 }
 
 void TAMPERAudioProcessor::releaseResources()
@@ -201,6 +227,11 @@ void TAMPERAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce:
     juce::dsp::AudioBlock<float> block (buffer);
     juce::dsp::AudioBlock<float> upSampledBlock (buffer);
     
+    //Pre distortion high pass filter
+    if(highPassFilter == 20.0) {}
+    else
+    highPassFilterPre.process(juce::dsp::ProcessContextReplacing<float>(block));
+    
     //if oversampling on...
     if(osToggle)
     {   //increase sample rate
@@ -242,7 +273,8 @@ void TAMPERAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce:
             }
         }
     }
-    
+    if(lowPassFilter == 20000.0) {}
+    lowPassFilterPost.process(juce::dsp::ProcessContextReplacing<float>(block));
 }
 
 // softclip algorithim (rounded)
