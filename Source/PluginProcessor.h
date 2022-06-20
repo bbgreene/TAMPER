@@ -92,6 +92,11 @@ private:
     juce::dsp::LinkwitzRileyFilter<float> highPassFilterPre;
     juce::dsp::LinkwitzRileyFilter<float> lowPassFilterPost;
     
+    //Mix variables
+    float blendSignal { 0.0f };
+    float drySignal { 0.0f };
+    juce::SmoothedValue<float> mix { 0.0f };
+    
     //parameter layout and change functions
     juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
     void parameterChanged (const juce::String& parameterID, float newValue) override;

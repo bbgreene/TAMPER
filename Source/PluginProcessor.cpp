@@ -27,6 +27,7 @@ TAMPERAudioProcessor::TAMPERAudioProcessor()
     treeState.addParameterListener("model", this);
     treeState.addParameterListener("high pass", this);
     treeState.addParameterListener("low pass", this);
+    treeState.addParameterListener("mix", this);
 }
 
 TAMPERAudioProcessor::~TAMPERAudioProcessor()
@@ -36,6 +37,7 @@ TAMPERAudioProcessor::~TAMPERAudioProcessor()
     treeState.removeParameterListener("model", this);
     treeState.removeParameterListener("high pass", this);
     treeState.removeParameterListener("low pass", this);
+    treeState.removeParameterListener("mix", this);
 }
 
 juce::AudioProcessorValueTreeState::ParameterLayout TAMPERAudioProcessor::createParameterLayout()
@@ -51,12 +53,14 @@ juce::AudioProcessorValueTreeState::ParameterLayout TAMPERAudioProcessor::create
     auto pModels = std::make_unique<juce::AudioParameterChoice>("model", "Model", disModels, 0);
     auto pHighPass = std::make_unique<juce::AudioParameterFloat>("high pass", "High Pass", juce::NormalisableRange<float> (20.0, 20000.0, 1.0, 0.22), 20.0);
     auto pLowPass = std::make_unique<juce::AudioParameterFloat>("low pass", "Low Pass", juce::NormalisableRange<float> (20.0, 20000.0, 1.0, 0.22), 20000.0);
+    auto pMix = std::make_unique<juce::AudioParameterFloat>("mix", "Mix", 0.0, 1.0, 1.0);
     
     params.push_back(std::move(pOSToggle));
     params.push_back(std::move(pDrive));
     params.push_back(std::move(pModels));
     params.push_back(std::move(pHighPass));
     params.push_back(std::move(pLowPass));
+    params.push_back(std::move(pMix));
     
     return { params.begin(), params.end() };
 }
@@ -91,6 +95,10 @@ void TAMPERAudioProcessor::parameterChanged(const juce::String &parameterID, flo
     {
         lowPassFilter = newValue;
         lowPassFilterPost.setCutoffFrequency(lowPassFilter);
+    }
+    if (parameterID == "mix")
+    {
+        mix = newValue;
     }
 }
 
@@ -179,6 +187,8 @@ void TAMPERAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock
     lowPassFilterPost.prepare(spec);
     lowPassFilterPost.setType(juce::dsp::LinkwitzRileyFilterType::lowpass);
     lowPassFilterPost.setCutoffFrequency(treeState.getRawParameterValue("low pass")->load());
+    
+    mix = treeState.getRawParameterValue("mix")->load();
 }
 
 void TAMPERAudioProcessor::releaseResources()
@@ -243,12 +253,17 @@ void TAMPERAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce:
             {
                 float* data = upSampledBlock.getChannelPointer(ch);
                 
+                drySignal = data[sample]; //dry signal stored in variable
+                
                 switch(disModel)
                 {
                     case DisModels::kSoft: data[sample] = softClipData(data[sample]); break;
                     case DisModels::KHard: data[sample] = hardClipData(data[sample]); break;
                     case DisModels::KTube: data[sample] = tubeData(data[sample]); break;
                 }
+                
+                blendSignal = (1.0 - mix.getNextValue()) * drySignal + mix.getNextValue() * data[sample];
+                data[sample] = blendSignal;
             }
         }
         //decrease sample rate back down
@@ -264,16 +279,23 @@ void TAMPERAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce:
             {
                 float* data = block.getChannelPointer(ch);
                 
+                drySignal = data[sample]; //dry signal stored in variable
+                
                 switch(disModel)
                 {
                     case DisModels::kSoft: data[sample] = softClipData(data[sample]); break;
                     case DisModels::KHard: data[sample] = hardClipData(data[sample]); break;
                     case DisModels::KTube: data[sample] = tubeData(data[sample]); break;
                 }
+                
+                blendSignal = (1.0 - mix.getNextValue()) * drySignal + mix.getNextValue() * data[sample];
+                data[sample] = blendSignal;
             }
         }
     }
+    //Post distortion low pass filter
     if(lowPassFilter == 20000.0) {}
+    else
     lowPassFilterPost.process(juce::dsp::ProcessContextReplacing<float>(block));
 }
 
