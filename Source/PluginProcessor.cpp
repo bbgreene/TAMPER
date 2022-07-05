@@ -247,14 +247,14 @@ void TAMPERAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce:
     {   //increase sample rate
         upSampledBlock = overSamplingModule.processSamplesUp(block);
         
-        for(int sample = 0; sample < upSampledBlock.getNumSamples(); ++sample)
+        for(int channel = 0; channel < upSampledBlock.getNumChannels(); ++channel)
         {
-            for (int ch = 0; ch < upSampledBlock.getNumChannels(); ++ch)
+            float* data = upSampledBlock.getChannelPointer(channel);
+
+            for (int sample = 0; sample < upSampledBlock.getNumSamples(); ++sample)
             {
-                float* data = upSampledBlock.getChannelPointer(ch);
-                
                 drySignal = data[sample]; //dry signal stored in variable
-                auto high = highPassFilterPre.processSample(ch, data[sample]);
+                auto high = highPassFilterPre.processSample(channel, data[sample]);
 
                 switch(disModel)
                 {
@@ -263,7 +263,7 @@ void TAMPERAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce:
                     case DisModels::KTube: data[sample] = tubeData(high); break;
                 }
                 
-                data[sample] = lowPassFilterPost.processSample(ch, data[sample]);
+                data[sample] = lowPassFilterPost.processSample(channel, data[sample]);
                 
                 blendSignal = (1.0 - mix.getNextValue()) * drySignal + mix.getNextValue() * data[sample];
                 data[sample] = blendSignal;
@@ -276,14 +276,14 @@ void TAMPERAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce:
     //if oversampling is off...
     else
     {
-        for(int sample = 0; sample < block.getNumSamples(); ++sample)
+        for(int channel = 0; channel < block.getNumChannels(); ++channel)
         {
-            for (int ch = 0; ch < block.getNumChannels(); ++ch)
+            float* data = block.getChannelPointer(channel);
+            
+            for (int sample = 0; sample < block.getNumSamples(); ++sample)
             {
-                float* data = block.getChannelPointer(ch);
-                
                 drySignal = data[sample]; //dry signal stored in variable
-                auto high = highPassFilterPre.processSample(ch, data[sample]);
+                auto high = highPassFilterPre.processSample(channel, data[sample]);
                 
                 switch(disModel)
                 {
@@ -292,7 +292,7 @@ void TAMPERAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce:
                     case DisModels::KTube: data[sample] = tubeData(high); break;
                 }
                 
-                data[sample] = lowPassFilterPost.processSample(ch, data[sample]);
+                data[sample] = lowPassFilterPost.processSample(channel, data[sample]);
 
                 blendSignal = (1.0 - mix.getNextValue()) * drySignal + mix.getNextValue() * data[sample];
                 data[sample] = blendSignal;
