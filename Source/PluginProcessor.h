@@ -97,8 +97,7 @@ private:
     float drySignal { 0.0f };
     juce::SmoothedValue<float> mix { 0.0f };
     
-    float out { 0.0f };
-    float rawOutput { 1.0f };
+    juce::LinearSmoothedValue<float> smoothOutput { 0.0f };
     
     //parameter layout and change functions
     juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();

@@ -56,7 +56,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout TAMPERAudioProcessor::create
     auto pHighPass = std::make_unique<juce::AudioParameterFloat>("high pass", "High Pass", juce::NormalisableRange<float> (20.0, 20000.0, 1.0, 0.22), 20.0);
     auto pLowPass = std::make_unique<juce::AudioParameterFloat>("low pass", "Low Pass", juce::NormalisableRange<float> (20.0, 20000.0, 1.0, 0.22), 20000.0);
     auto pMix = std::make_unique<juce::AudioParameterFloat>("mix", "Mix", 0.0, 1.0, 1.0);
-    auto pOut = std::make_unique<juce::AudioParameterFloat>("out", "Out", -24.0, 24.0, 0.0);
+    auto pOut = std::make_unique<juce::AudioParameterFloat>("out", "Out", juce::NormalisableRange<float> (-24.0f, 24.0f, 0.01f, 1.0f), 0.00f);
     
     params.push_back(std::move(pOSToggle));
     params.push_back(std::move(pDrive));
@@ -104,11 +104,7 @@ void TAMPERAudioProcessor::parameterChanged(const juce::String &parameterID, flo
     {
         mix = newValue;
     }
-    if (parameterID == "out")
-    {
-        out = newValue;
-        rawOutput = juce::Decibels::decibelsToGain(out);
-    }
+    smoothOutput.setTargetValue(juce::Decibels::decibelsToGain(treeState.getRawParameterValue("out")->load()));
 }
 
 //==============================================================================
@@ -199,7 +195,9 @@ void TAMPERAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock
     lowPassFilterPost.setCutoffFrequency(treeState.getRawParameterValue("low pass")->load());
     
     mix = treeState.getRawParameterValue("mix")->load();
-    rawOutput = juce::Decibels::decibelsToGain(static_cast<float>(*treeState.getRawParameterValue("out")));
+    
+    smoothOutput.reset(sampleRate, 0.1f);
+    smoothOutput.setCurrentAndTargetValue(juce::Decibels::decibelsToGain(treeState.getRawParameterValue("out")->load()));
 }
 
 void TAMPERAudioProcessor::releaseResources()
@@ -242,6 +240,8 @@ void TAMPERAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce:
 
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
+    
+    smoothOutput.setTargetValue(juce::Decibels::decibelsToGain(treeState.getRawParameterValue("out")->load()));
     
     //My two audioblocks
     juce::dsp::AudioBlock<float> block (buffer);
@@ -297,7 +297,7 @@ void TAMPERAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce:
             {
                 auto dry = data[sample];
                 data[sample] = lowPassFilterPost.processSample(channel, data[sample]);
-                data[sample] = ((1.0 - mix.getNextValue()) * dry + mix.getNextValue() * data[sample]) * rawOutput;
+                data[sample] = ((1.0 - mix.getNextValue()) * dry + mix.getNextValue() * data[sample]) * smoothOutput.getNextValue();
             }
         }
     }
@@ -324,7 +324,7 @@ void TAMPERAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce:
                 data[sample] = lowPassFilterPost.processSample(channel, data[sample]); // low pass filter post distortion
 
                 blendSignal = (1.0 - mix.getNextValue()) * drySignal + mix.getNextValue() * data[sample];
-                data[sample] = blendSignal * rawOutput;
+                data[sample] = blendSignal * smoothOutput.getNextValue();
             }
         }
     }
