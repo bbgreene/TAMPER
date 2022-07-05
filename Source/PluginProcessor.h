@@ -97,6 +97,9 @@ private:
     float drySignal { 0.0f };
     juce::SmoothedValue<float> mix { 0.0f };
     
+    float out { 0.0f };
+    float rawOutput { 1.0f };
+    
     //parameter layout and change functions
     juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
     void parameterChanged (const juce::String& parameterID, float newValue) override;
