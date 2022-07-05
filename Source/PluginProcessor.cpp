@@ -254,7 +254,6 @@ void TAMPERAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce:
                 float* data = upSampledBlock.getChannelPointer(ch);
                 
                 drySignal = data[sample]; //dry signal stored in variable
-                highPassFilterPre.setCutoffFrequency(treeState.getRawParameterValue("high pass")->load());
                 auto high = highPassFilterPre.processSample(ch, data[sample]);
 
                 switch(disModel)
@@ -263,6 +262,8 @@ void TAMPERAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce:
                     case DisModels::KHard: data[sample] = hardClipData(high); break;
                     case DisModels::KTube: data[sample] = tubeData(high); break;
                 }
+                
+                data[sample] = lowPassFilterPost.processSample(ch, data[sample]);
                 
                 blendSignal = (1.0 - mix.getNextValue()) * drySignal + mix.getNextValue() * data[sample];
                 data[sample] = blendSignal;
@@ -282,23 +283,26 @@ void TAMPERAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce:
                 float* data = block.getChannelPointer(ch);
                 
                 drySignal = data[sample]; //dry signal stored in variable
+                auto high = highPassFilterPre.processSample(ch, data[sample]);
                 
                 switch(disModel)
                 {
-                    case DisModels::kSoft: data[sample] = softClipData(data[sample]); break;
-                    case DisModels::KHard: data[sample] = hardClipData(data[sample]); break;
-                    case DisModels::KTube: data[sample] = tubeData(data[sample]); break;
+                    case DisModels::kSoft: data[sample] = softClipData(high); break;
+                    case DisModels::KHard: data[sample] = hardClipData(high); break;
+                    case DisModels::KTube: data[sample] = tubeData(high); break;
                 }
                 
+                data[sample] = lowPassFilterPost.processSample(ch, data[sample]);
+
                 blendSignal = (1.0 - mix.getNextValue()) * drySignal + mix.getNextValue() * data[sample];
                 data[sample] = blendSignal;
             }
         }
     }
     //Post distortion low pass filter
-    if(lowPassFilter == 20000.0) {}
-    else
-    lowPassFilterPost.process(juce::dsp::ProcessContextReplacing<float>(block));
+//    if(lowPassFilter == 20000.0) {}
+//    else
+//    lowPassFilterPost.process(juce::dsp::ProcessContextReplacing<float>(block));
 }
 
 // softclip algorithim (rounded)
