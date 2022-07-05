@@ -238,9 +238,9 @@ void TAMPERAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce:
     juce::dsp::AudioBlock<float> upSampledBlock (buffer);
     
     //Pre distortion high pass filter
-    if(highPassFilter == 20.0) {}
-    else
-    highPassFilterPre.process(juce::dsp::ProcessContextReplacing<float>(block));
+//    if(highPassFilter == 20.0) {}
+//    else
+//    highPassFilterPre.process(juce::dsp::ProcessContextReplacing<float>(block));
     
     //if oversampling on...
     if(osToggle)
@@ -254,12 +254,14 @@ void TAMPERAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce:
                 float* data = upSampledBlock.getChannelPointer(ch);
                 
                 drySignal = data[sample]; //dry signal stored in variable
-                
+                highPassFilterPre.setCutoffFrequency(treeState.getRawParameterValue("high pass")->load());
+                auto high = highPassFilterPre.processSample(ch, data[sample]);
+
                 switch(disModel)
                 {
-                    case DisModels::kSoft: data[sample] = softClipData(data[sample]); break;
-                    case DisModels::KHard: data[sample] = hardClipData(data[sample]); break;
-                    case DisModels::KTube: data[sample] = tubeData(data[sample]); break;
+                    case DisModels::kSoft: data[sample] = softClipData(high); break;
+                    case DisModels::KHard: data[sample] = hardClipData(high); break;
+                    case DisModels::KTube: data[sample] = tubeData(high); break;
                 }
                 
                 blendSignal = (1.0 - mix.getNextValue()) * drySignal + mix.getNextValue() * data[sample];
