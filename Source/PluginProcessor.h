@@ -70,7 +70,8 @@ private:
     {
         kSoft,
         KHard,
-        KTube
+        KTube,
+        KSat
     };
     
     //Distortion models selection class instantiation
@@ -79,10 +80,12 @@ private:
     //constant for distortion data
     static constexpr float piDivisor = 2.0 / juce::MathConstants<float>::pi;
 
-    // distortion data
+    // distortion data functions
     float softClipData (float sample);
     float hardClipData (float sample);
     float tubeData (float sample);
+    float saturationData (float sample);
+    float thresh = 0.1;
     
     //filter variables
     float highPassFilter { 20.0 };

@@ -46,7 +46,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout TAMPERAudioProcessor::create
 {
     std::vector <std::unique_ptr<juce::RangedAudioParameter>> params;
     
-    juce::StringArray disModels = { "Soft", "Hard", "Tube" };
+    juce::StringArray disModels = { "Soft", "Hard", "Tube", "Saturation" };
     
     params.reserve(9);
     
@@ -87,7 +87,7 @@ void TAMPERAudioProcessor::parameterChanged(const juce::String &parameterID, flo
             case 0: disModel = DisModels::kSoft; break;
             case 1: disModel = DisModels::KHard; break;
             case 2: disModel = DisModels::KTube; break;
-
+            case 3: disModel = DisModels::KSat; break;
         }
     }
     if (parameterID == "high pass")
@@ -279,6 +279,7 @@ void TAMPERAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce:
                     case DisModels::kSoft: data[sample] = softClipData(data[sample]); break;
                     case DisModels::KHard: data[sample] = hardClipData(data[sample]); break;
                     case DisModels::KTube: data[sample] = tubeData(data[sample]); break;
+                    case DisModels::KSat: data[sample] = saturationData(data[sample]); break;
                 }
                 
                 blendSignal = (1.0 - mix.getNextValue()) * drySignal + mix.getNextValue() * data[sample];
@@ -312,13 +313,14 @@ void TAMPERAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce:
             for (int sample = 0; sample < block.getNumSamples(); ++sample)
             {
                 drySignal = data[sample]; //dry signal stored in variable
-                auto high = highPassFilterPre.processSample(channel, data[sample]); // high pass filter pre distortion
+                auto highPassed = highPassFilterPre.processSample(channel, data[sample]); // high pass filter pre distortion
                 
                 switch(disModel)
                 {
-                    case DisModels::kSoft: data[sample] = softClipData(high); break;
-                    case DisModels::KHard: data[sample] = hardClipData(high); break;
-                    case DisModels::KTube: data[sample] = tubeData(high); break;
+                    case DisModels::kSoft: data[sample] = softClipData(highPassed); break;
+                    case DisModels::KHard: data[sample] = hardClipData(highPassed); break;
+                    case DisModels::KTube: data[sample] = tubeData(highPassed); break;
+                    case DisModels::KSat: data[sample] = saturationData(highPassed); break;
                 }
                 
                 data[sample] = lowPassFilterPost.processSample(channel, data[sample]); // low pass filter post distortion
@@ -330,14 +332,14 @@ void TAMPERAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce:
     }
 }
 
-// softclip algorithim (rounded)
+// softclip function (rounded)
 float TAMPERAudioProcessor::softClipData(float sample)
 {
     sample *= rawInput * 1.6;
     return piDivisor * std::atan(sample);
 }
 
-// hardclip algorithim (any sample above 1 or -1 will be squared)
+// hardclip function (any sample above 1 or -1 will be squared)
 float TAMPERAudioProcessor::hardClipData(float sample)
 {
     sample *= rawInput;
@@ -349,7 +351,7 @@ float TAMPERAudioProcessor::hardClipData(float sample)
     return sample;
 }
 
-// tube algorithim (postive values will hardclip, negative values will softclip)
+// tube function (postive values will hardclip, negative values will softclip)
 float TAMPERAudioProcessor::tubeData(float sample)
 {
     sample *= rawInput * 1.6;
@@ -364,6 +366,32 @@ float TAMPERAudioProcessor::tubeData(float sample)
         sample = hardClipData(sample);
     }
     sample = piDivisor * std::atan(sample);
+    return sample;
+}
+
+// saturation function
+float TAMPERAudioProcessor::saturationData(float sample)
+{
+    sample *= rawInput;
+    if (sample < thresh)
+    {
+        sample = sample;
+    }
+    
+    else if (sample > thresh)
+    {
+        sample = thresh + (sample - thresh) / (1.0 + std::pow((( sample - thresh) / (1.0 - thresh)), 2.0));
+    }
+    
+    else if (sample > 1.0)
+    {
+        sample = (thresh + 1.0) * 0.5;
+    }
+    
+    if (sample < -0.8)
+    {
+        sample = -0.8;
+    }
     return sample;
 }
 
