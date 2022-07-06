@@ -198,7 +198,7 @@ void TAMPERAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock
 //    convolution.loadImpulseResponse(juce::File ("/Users/programming/Desktop/cassette_recorder.wav"), juce::dsp::Convolution::Stereo::yes, juce::dsp::Convolution::Trim::yes, 0, juce::dsp::Convolution::Normalise::yes);
     
     //function to load IR from binary
-    convolution.loadImpulseResponse(BinaryData::cassette_recorder_wav, BinaryData::cassette_recorder_wavSize, juce::dsp::Convolution::Stereo::yes, juce::dsp::Convolution::Trim::yes, 0);
+    convolution.loadImpulseResponse(BinaryData::ABLCR_M2S_1_Loud_aif, BinaryData::ABLCR_M2S_1_Loud_aifSize, juce::dsp::Convolution::Stereo::yes, juce::dsp::Convolution::Trim::yes, 0, juce::dsp::Convolution::Normalise::no);
     
     rawInput = juce::Decibels::decibelsToGain(static_cast<float>(*treeState.getRawParameterValue("drive")));
     
@@ -349,6 +349,7 @@ void TAMPERAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce:
         }
     }
     
+    //Convolution process
     juce::dsp::ProcessContextReplacing<float> context (block);
     if (ConvolveOn) convolution.process(context);
 }

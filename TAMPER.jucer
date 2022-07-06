@@ -13,6 +13,9 @@
             file="Source/PluginEditor.cpp"/>
       <FILE id="kIVj1V" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
     </GROUP>
+    <FILE id="DhOTo7" name="ABLCR_M2S_1.aif" compile="0" resource="1" file="ABLCR_M2S_1.aif"/>
+    <FILE id="sg7HwM" name="ABLCR_M2S_1_Loud.aif" compile="0" resource="1"
+          file="ABLCR_M2S_1_Loud.aif"/>
     <FILE id="tQRoqF" name="cassette_recorder.wav" compile="0" resource="1"
           file="cassette_recorder.wav"/>
   </MAINGROUP>

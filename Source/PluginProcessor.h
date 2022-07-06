@@ -104,7 +104,7 @@ private:
     
     //Convolution object
     juce::dsp::Convolution convolution;
-    bool ConvolveOn { true };
+    bool ConvolveOn { false };
     
     //parameter layout and change functions
     juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
