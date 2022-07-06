@@ -13,6 +13,8 @@
             file="Source/PluginEditor.cpp"/>
       <FILE id="kIVj1V" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
     </GROUP>
+    <FILE id="tQRoqF" name="cassette_recorder.wav" compile="0" resource="1"
+          file="cassette_recorder.wav"/>
   </MAINGROUP>
   <JUCEOPTIONS JUCE_STRICT_REFCOUNTEDPOINTER="1" JUCE_VST3_CAN_REPLACE_VST2="0"/>
   <EXPORTFORMATS>

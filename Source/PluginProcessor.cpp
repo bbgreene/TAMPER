@@ -29,6 +29,7 @@ TAMPERAudioProcessor::TAMPERAudioProcessor()
     treeState.addParameterListener("low pass", this);
     treeState.addParameterListener("mix", this);
     treeState.addParameterListener("out", this);
+    treeState.addParameterListener("convolve", this);
 }
 
 TAMPERAudioProcessor::~TAMPERAudioProcessor()
@@ -40,6 +41,7 @@ TAMPERAudioProcessor::~TAMPERAudioProcessor()
     treeState.removeParameterListener("low pass", this);
     treeState.removeParameterListener("mix", this);
     treeState.removeParameterListener("out", this);
+    treeState.removeParameterListener("convolve", this);
 }
 
 juce::AudioProcessorValueTreeState::ParameterLayout TAMPERAudioProcessor::createParameterLayout()
@@ -57,6 +59,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout TAMPERAudioProcessor::create
     auto pLowPass = std::make_unique<juce::AudioParameterFloat>("low pass", "Low Pass", juce::NormalisableRange<float> (20.0, 20000.0, 1.0, 0.22), 20000.0);
     auto pMix = std::make_unique<juce::AudioParameterFloat>("mix", "Mix", 0.0, 1.0, 1.0);
     auto pOut = std::make_unique<juce::AudioParameterFloat>("out", "Out", juce::NormalisableRange<float> (-24.0f, 24.0f, 0.01f, 1.0f), 0.00f);
+    auto pConv = std::make_unique<juce::AudioParameterBool>("convolve", "Convole", false);
     
     params.push_back(std::move(pOSToggle));
     params.push_back(std::move(pDrive));
@@ -65,6 +68,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout TAMPERAudioProcessor::create
     params.push_back(std::move(pLowPass));
     params.push_back(std::move(pMix));
     params.push_back(std::move(pOut));
+    params.push_back(std::move(pConv));
     
     return { params.begin(), params.end() };
 }
@@ -105,6 +109,10 @@ void TAMPERAudioProcessor::parameterChanged(const juce::String &parameterID, flo
         mix = newValue;
     }
     smoothOutput.setTargetValue(juce::Decibels::decibelsToGain(treeState.getRawParameterValue("out")->load()));
+    if (parameterID == "convolve")
+    {
+        ConvolveOn = newValue;
+    }
 }
 
 //==============================================================================
@@ -181,6 +189,16 @@ void TAMPERAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock
     osToggle = *treeState.getRawParameterValue("oversample");
     overSamplingModule.initProcessing(samplesPerBlock);
     overSamplingModule.reset();
+    
+    ConvolveOn = *treeState.getRawParameterValue("convolve");
+    convolution.reset();
+    convolution.prepare(spec);
+    
+    //function to load IR from computer
+//    convolution.loadImpulseResponse(juce::File ("/Users/programming/Desktop/cassette_recorder.wav"), juce::dsp::Convolution::Stereo::yes, juce::dsp::Convolution::Trim::yes, 0, juce::dsp::Convolution::Normalise::yes);
+    
+    //function to load IR from binary
+    convolution.loadImpulseResponse(BinaryData::cassette_recorder_wav, BinaryData::cassette_recorder_wavSize, juce::dsp::Convolution::Stereo::yes, juce::dsp::Convolution::Trim::yes, 0);
     
     rawInput = juce::Decibels::decibelsToGain(static_cast<float>(*treeState.getRawParameterValue("drive")));
     
@@ -330,6 +348,9 @@ void TAMPERAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce:
             }
         }
     }
+    
+    juce::dsp::ProcessContextReplacing<float> context (block);
+    if (ConvolveOn) convolution.process(context);
 }
 
 // softclip function (rounded)

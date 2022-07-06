@@ -102,6 +102,10 @@ private:
     
     juce::LinearSmoothedValue<float> smoothOutput { 0.0f };
     
+    //Convolution object
+    juce::dsp::Convolution convolution;
+    bool ConvolveOn { true };
+    
     //parameter layout and change functions
     juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
     void parameterChanged (const juce::String& parameterID, float newValue) override;
