@@ -106,6 +106,10 @@ private:
     juce::dsp::Convolution convolution;
     bool ConvolveOn { false };
     
+    //Mixer object instantiaton for convolution
+    juce::dsp::DryWetMixer<float> ConvolveMix;
+    float ConvolveMixerValue { 0.0 };
+    
     //parameter layout and change functions
     juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
     void parameterChanged (const juce::String& parameterID, float newValue) override;
