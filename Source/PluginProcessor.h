@@ -108,7 +108,7 @@ private:
     float mainMixValue { 1.0 };
     
     //Output
-    juce::LinearSmoothedValue<float> smoothOutput { 0.0f };
+    juce::dsp::Gain<float> outputModule;
     
     //parameter layout and change functions
     juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();

@@ -62,7 +62,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout TAMPERAudioProcessor::create
     auto pConv = std::make_unique<juce::AudioParameterBool>("real room", "Real Room", false);
     auto pConvMix = std::make_unique<juce::AudioParameterFloat>("real room mix", "Real Room Amount", 0.0, 1.0, 0.0);
     auto pMainMix = std::make_unique<juce::AudioParameterFloat>("main Mix", "Main Mix", 0.0, 1.0, 1.0);
-    auto pOut = std::make_unique<juce::AudioParameterFloat>("out", "Out", juce::NormalisableRange<float> (-24.0f, 24.0f, 0.01f, 1.0f), 0.00f);
+    auto pOut = std::make_unique<juce::AudioParameterFloat>("out", "Out", -24.0f, 24.0f, 0.0f);
     
     params.push_back(std::move(pOSToggle));
     params.push_back(std::move(pHighPass));
@@ -122,7 +122,7 @@ void TAMPERAudioProcessor::parameterChanged(const juce::String &parameterID, flo
         mainMixValue = newValue;
         mainMix.setWetMixProportion(newValue);
     }
-    smoothOutput.setTargetValue(juce::Decibels::decibelsToGain(treeState.getRawParameterValue("out")->load()));
+    outputModule.setGainDecibels(treeState.getRawParameterValue("out")->load());
 }
 
 //==============================================================================
@@ -228,8 +228,12 @@ void TAMPERAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock
     mainMix.prepare(spec);
     mainMix.setWetMixProportion(mainMixValue);
     
-    smoothOutput.reset(sampleRate, 0.1f);
-    smoothOutput.setCurrentAndTargetValue(juce::Decibels::decibelsToGain(treeState.getRawParameterValue("out")->load()));
+    //Output gain module prep
+    outputModule.reset();
+    outputModule.prepare(spec);
+    outputModule.setRampDurationSeconds(0.02);
+    outputModule.setGainDecibels(treeState.getRawParameterValue("out")->load());
+
 }
 
 void TAMPERAudioProcessor::releaseResources()
@@ -272,9 +276,7 @@ void TAMPERAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce:
 
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
-    
-    smoothOutput.setTargetValue(juce::Decibels::decibelsToGain(treeState.getRawParameterValue("out")->load()));
-    
+        
     //My two audioblocks
     juce::dsp::AudioBlock<float> block (buffer);
     juce::dsp::AudioBlock<float> upSampledBlock (buffer);
@@ -368,6 +370,9 @@ void TAMPERAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce:
     
     //pushing wet samples to main mix
     mainMix.mixWetSamples(output);
+    
+    //output module gain
+    outputModule.process(juce::dsp::ProcessContextReplacing<float>(block));
 }
 
 // softclip function (rounded)
@@ -448,15 +453,17 @@ juce::AudioProcessorEditor* TAMPERAudioProcessor::createEditor()
 //==============================================================================
 void TAMPERAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
 {
-    // You should use this method to store your parameters in the memory block.
-    // You could do that either as raw data, or use the XML or ValueTree classes
-    // as intermediaries to make it easy to save and load complex data.
+    juce::MemoryOutputStream mos(destData, true);
+    treeState.state.writeToStream(mos);
 }
 
 void TAMPERAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
-    // You should use this method to restore your parameters from this memory block,
-    // whose contents will have been created by the getStateInformation() call.
+    auto tree = juce::ValueTree::readFromData(data, sizeInBytes);
+    if ( tree.isValid() )
+    {
+        treeState.replaceState(tree);
+    }
 }
 
 //==============================================================================
