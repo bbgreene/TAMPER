@@ -110,6 +110,10 @@ private:
     juce::dsp::DryWetMixer<float> ConvolveMix;
     float ConvolveMixerValue { 0.0 };
     
+    //Main Mix object instantiation
+    juce::dsp::DryWetMixer<float> mainMix;
+    float mainMixValue { 1.0 };
+    
     //parameter layout and change functions
     juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
     void parameterChanged (const juce::String& parameterID, float newValue) override;

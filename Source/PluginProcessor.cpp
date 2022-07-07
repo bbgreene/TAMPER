@@ -23,27 +23,29 @@ TAMPERAudioProcessor::TAMPERAudioProcessor()
 #endif
 {
     treeState.addParameterListener("oversample", this);
+    treeState.addParameterListener("high pass", this);
     treeState.addParameterListener("drive", this);
     treeState.addParameterListener("model", this);
-    treeState.addParameterListener("high pass", this);
     treeState.addParameterListener("low pass", this);
-    treeState.addParameterListener("mix", this);
-    treeState.addParameterListener("out", this);
     treeState.addParameterListener("convolve", this);
     treeState.addParameterListener("convMix", this);
+    treeState.addParameterListener("mix", this);
+    treeState.addParameterListener("mainMix", this);
+    treeState.addParameterListener("out", this);
 }
 
 TAMPERAudioProcessor::~TAMPERAudioProcessor()
 {
     treeState.removeParameterListener("oversample", this);
+    treeState.removeParameterListener("high pass", this);
     treeState.removeParameterListener("drive", this);
     treeState.removeParameterListener("model", this);
-    treeState.removeParameterListener("high pass", this);
     treeState.removeParameterListener("low pass", this);
-    treeState.removeParameterListener("mix", this);
-    treeState.removeParameterListener("out", this);
     treeState.removeParameterListener("convolve", this);
     treeState.removeParameterListener("convMix", this);
+    treeState.removeParameterListener("mix", this);
+    treeState.removeParameterListener("mainMix", this);
+    treeState.removeParameterListener("out", this);
 }
 
 juce::AudioProcessorValueTreeState::ParameterLayout TAMPERAudioProcessor::createParameterLayout()
@@ -55,24 +57,26 @@ juce::AudioProcessorValueTreeState::ParameterLayout TAMPERAudioProcessor::create
     params.reserve(9);
     
     auto pOSToggle = std::make_unique<juce::AudioParameterBool>("oversample", "Oversample", false);
+    auto pHighPass = std::make_unique<juce::AudioParameterFloat>("high pass", "High Pass", juce::NormalisableRange<float> (20.0, 20000.0, 1.0, 0.22), 20.0);
     auto pDrive = std::make_unique<juce::AudioParameterFloat>("drive", "Drive", 0.0, 24.0, 0.0);
     auto pModels = std::make_unique<juce::AudioParameterChoice>("model", "Model", disModels, 0);
-    auto pHighPass = std::make_unique<juce::AudioParameterFloat>("high pass", "High Pass", juce::NormalisableRange<float> (20.0, 20000.0, 1.0, 0.22), 20.0);
     auto pLowPass = std::make_unique<juce::AudioParameterFloat>("low pass", "Low Pass", juce::NormalisableRange<float> (20.0, 20000.0, 1.0, 0.22), 20000.0);
-    auto pMix = std::make_unique<juce::AudioParameterFloat>("mix", "Mix", 0.0, 1.0, 1.0);
-    auto pOut = std::make_unique<juce::AudioParameterFloat>("out", "Out", juce::NormalisableRange<float> (-24.0f, 24.0f, 0.01f, 1.0f), 0.00f);
     auto pConv = std::make_unique<juce::AudioParameterBool>("convolve", "Convole", false);
     auto pConvMix = std::make_unique<juce::AudioParameterFloat>("convMix", "ConvMix", 0.0, 1.0, 0.0);
+    auto pMix = std::make_unique<juce::AudioParameterFloat>("mix", "Mix", 0.0, 1.0, 1.0);
+    auto pMainMix = std::make_unique<juce::AudioParameterFloat>("mainMix", "MainMix", 0.0, 1.0, 1.0);
+    auto pOut = std::make_unique<juce::AudioParameterFloat>("out", "Out", juce::NormalisableRange<float> (-24.0f, 24.0f, 0.01f, 1.0f), 0.00f);
     
     params.push_back(std::move(pOSToggle));
+    params.push_back(std::move(pHighPass));
     params.push_back(std::move(pDrive));
     params.push_back(std::move(pModels));
-    params.push_back(std::move(pHighPass));
     params.push_back(std::move(pLowPass));
-    params.push_back(std::move(pMix));
-    params.push_back(std::move(pOut));
     params.push_back(std::move(pConv));
     params.push_back(std::move(pConvMix));
+    params.push_back(std::move(pMix));
+    params.push_back(std::move(pMainMix));
+    params.push_back(std::move(pOut));
     
     return { params.begin(), params.end() };
 }
@@ -82,6 +86,11 @@ void TAMPERAudioProcessor::parameterChanged(const juce::String &parameterID, flo
     if (parameterID == "oversample")
     {
         osToggle = newValue;
+    }
+    if (parameterID == "high pass")
+    {
+        highPassFilter = newValue;
+        highPassFilterPre.setCutoffFrequency(highPassFilter);
     }
     if (parameterID == "drive")
     {
@@ -98,21 +107,11 @@ void TAMPERAudioProcessor::parameterChanged(const juce::String &parameterID, flo
             case 3: disModel = DisModels::KSat; break;
         }
     }
-    if (parameterID == "high pass")
-    {
-        highPassFilter = newValue;
-        highPassFilterPre.setCutoffFrequency(highPassFilter);
-    }
     if (parameterID == "low pass")
     {
         lowPassFilter = newValue;
         lowPassFilterPost.setCutoffFrequency(lowPassFilter);
     }
-    if (parameterID == "mix")
-    {
-        mix = newValue;
-    }
-    smoothOutput.setTargetValue(juce::Decibels::decibelsToGain(treeState.getRawParameterValue("out")->load()));
     if (parameterID == "convolve")
     {
         ConvolveOn = newValue;
@@ -122,6 +121,16 @@ void TAMPERAudioProcessor::parameterChanged(const juce::String &parameterID, flo
         ConvolveMixerValue = newValue;
         ConvolveMix.setWetMixProportion(newValue);
     }
+    if (parameterID == "mix")
+    {
+        mix = newValue;
+    }
+    if (parameterID == "mainMix")
+    {
+        mainMixValue = newValue;
+        mainMix.setWetMixProportion(newValue);
+    }
+    smoothOutput.setTargetValue(juce::Decibels::decibelsToGain(treeState.getRawParameterValue("out")->load()));
 }
 
 //==============================================================================
@@ -199,6 +208,17 @@ void TAMPERAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock
     overSamplingModule.initProcessing(samplesPerBlock);
     overSamplingModule.reset();
     
+    highPassFilterPre.prepare(spec);
+    highPassFilterPre.setType(juce::dsp::LinkwitzRileyFilterType::highpass);
+    highPassFilterPre.setCutoffFrequency(treeState.getRawParameterValue("high pass")->load());
+    
+    rawInput = juce::Decibels::decibelsToGain(static_cast<float>(*treeState.getRawParameterValue("drive")));
+    disModel = static_cast<DisModels>(treeState.getRawParameterValue("model")->load());
+    
+    lowPassFilterPost.prepare(spec);
+    lowPassFilterPost.setType(juce::dsp::LinkwitzRileyFilterType::lowpass);
+    lowPassFilterPost.setCutoffFrequency(treeState.getRawParameterValue("low pass")->load());
+    
     ConvolveOn = *treeState.getRawParameterValue("convolve");
     convolution.reset();
     convolution.prepare(spec);
@@ -210,20 +230,13 @@ void TAMPERAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock
     ConvolveMixerValue = *treeState.getRawParameterValue("convMix");
     ConvolveMix.prepare(spec);
     ConvolveMix.setWetMixProportion(ConvolveMixerValue);
-    
-    rawInput = juce::Decibels::decibelsToGain(static_cast<float>(*treeState.getRawParameterValue("drive")));
-    
-    disModel = static_cast<DisModels>(treeState.getRawParameterValue("model")->load());
-    
-    highPassFilterPre.prepare(spec);
-    highPassFilterPre.setType(juce::dsp::LinkwitzRileyFilterType::highpass);
-    highPassFilterPre.setCutoffFrequency(treeState.getRawParameterValue("high pass")->load());
-    
-    lowPassFilterPost.prepare(spec);
-    lowPassFilterPost.setType(juce::dsp::LinkwitzRileyFilterType::lowpass);
-    lowPassFilterPost.setCutoffFrequency(treeState.getRawParameterValue("low pass")->load());
-    
+
     mix = treeState.getRawParameterValue("mix")->load();
+    
+    //Main Mix test
+    mainMixValue = *treeState.getRawParameterValue("mainMix");
+    mainMix.prepare(spec);
+    mainMix.setWetMixProportion(mainMixValue);
     
     smoothOutput.reset(sampleRate, 0.1f);
     smoothOutput.setCurrentAndTargetValue(juce::Decibels::decibelsToGain(treeState.getRawParameterValue("out")->load()));
@@ -275,6 +288,13 @@ void TAMPERAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce:
     //My two audioblocks
     juce::dsp::AudioBlock<float> block (buffer);
     juce::dsp::AudioBlock<float> upSampledBlock (buffer);
+    
+    juce::dsp::ProcessContextReplacing<float> contextMain (block);
+    
+    const auto& input = contextMain.getInputBlock();
+    const auto& output = contextMain.getOutputBlock();
+    
+    mainMix.pushDrySamples(input);
     
     //if oversampling on...
     if(osToggle)
@@ -361,13 +381,15 @@ void TAMPERAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce:
     }
     
     //Convolution process and mix
-    juce::dsp::ProcessContextReplacing<float> context (block);
-    const auto& input = context.getInputBlock();
-    const auto& output = context.getOutputBlock();
+    juce::dsp::ProcessContextReplacing<float> contextConv (block);
+    const auto& inputConv = contextConv.getInputBlock();
+    const auto& outputConv = contextConv.getOutputBlock();
+
+    ConvolveMix.pushDrySamples(inputConv);
+    if (ConvolveOn) convolution.process(contextConv);
+    ConvolveMix.mixWetSamples(outputConv);
     
-    ConvolveMix.pushDrySamples(input);
-    if (ConvolveOn) convolution.process(context);
-    ConvolveMix.mixWetSamples(output);
+    mainMix.mixWetSamples(output);
 }
 
 // softclip function (rounded)
