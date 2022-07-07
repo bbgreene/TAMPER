@@ -95,13 +95,6 @@ private:
     juce::dsp::LinkwitzRileyFilter<float> highPassFilterPre;
     juce::dsp::LinkwitzRileyFilter<float> lowPassFilterPost;
     
-    //Mix variables
-    float blendSignal { 0.0f };
-    float drySignal { 0.0f };
-    juce::SmoothedValue<float> mix { 0.0f };
-    
-    juce::LinearSmoothedValue<float> smoothOutput { 0.0f };
-    
     //Convolution object
     juce::dsp::Convolution convolution;
     bool ConvolveOn { false };
@@ -113,6 +106,9 @@ private:
     //Main Mix object instantiation
     juce::dsp::DryWetMixer<float> mainMix;
     float mainMixValue { 1.0 };
+    
+    //Output
+    juce::LinearSmoothedValue<float> smoothOutput { 0.0f };
     
     //parameter layout and change functions
     juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();

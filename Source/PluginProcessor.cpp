@@ -27,10 +27,9 @@ TAMPERAudioProcessor::TAMPERAudioProcessor()
     treeState.addParameterListener("drive", this);
     treeState.addParameterListener("model", this);
     treeState.addParameterListener("low pass", this);
-    treeState.addParameterListener("convolve", this);
-    treeState.addParameterListener("convMix", this);
-    treeState.addParameterListener("mix", this);
-    treeState.addParameterListener("mainMix", this);
+    treeState.addParameterListener("real room", this);
+    treeState.addParameterListener("real room mix", this);
+    treeState.addParameterListener("main Mix", this);
     treeState.addParameterListener("out", this);
 }
 
@@ -41,10 +40,9 @@ TAMPERAudioProcessor::~TAMPERAudioProcessor()
     treeState.removeParameterListener("drive", this);
     treeState.removeParameterListener("model", this);
     treeState.removeParameterListener("low pass", this);
-    treeState.removeParameterListener("convolve", this);
-    treeState.removeParameterListener("convMix", this);
-    treeState.removeParameterListener("mix", this);
-    treeState.removeParameterListener("mainMix", this);
+    treeState.removeParameterListener("real room", this);
+    treeState.removeParameterListener("real room mix", this);
+    treeState.removeParameterListener("main Mix", this);
     treeState.removeParameterListener("out", this);
 }
 
@@ -57,14 +55,13 @@ juce::AudioProcessorValueTreeState::ParameterLayout TAMPERAudioProcessor::create
     params.reserve(9);
     
     auto pOSToggle = std::make_unique<juce::AudioParameterBool>("oversample", "Oversample", false);
-    auto pHighPass = std::make_unique<juce::AudioParameterFloat>("high pass", "High Pass", juce::NormalisableRange<float> (20.0, 20000.0, 1.0, 0.22), 20.0);
+    auto pHighPass = std::make_unique<juce::AudioParameterFloat>("high pass", "High Pass", juce::NormalisableRange<float> (20.0, 2000.0, 1.0, 0.22), 20.0);
     auto pDrive = std::make_unique<juce::AudioParameterFloat>("drive", "Drive", 0.0, 24.0, 0.0);
     auto pModels = std::make_unique<juce::AudioParameterChoice>("model", "Model", disModels, 0);
-    auto pLowPass = std::make_unique<juce::AudioParameterFloat>("low pass", "Low Pass", juce::NormalisableRange<float> (20.0, 20000.0, 1.0, 0.22), 20000.0);
-    auto pConv = std::make_unique<juce::AudioParameterBool>("convolve", "Convole", false);
-    auto pConvMix = std::make_unique<juce::AudioParameterFloat>("convMix", "ConvMix", 0.0, 1.0, 0.0);
-    auto pMix = std::make_unique<juce::AudioParameterFloat>("mix", "Mix", 0.0, 1.0, 1.0);
-    auto pMainMix = std::make_unique<juce::AudioParameterFloat>("mainMix", "MainMix", 0.0, 1.0, 1.0);
+    auto pLowPass = std::make_unique<juce::AudioParameterFloat>("low pass", "Low Pass", juce::NormalisableRange<float> (10000.0, 20000.0, 1.0, 0.22), 20000.0);
+    auto pConv = std::make_unique<juce::AudioParameterBool>("real room", "Real Room", false);
+    auto pConvMix = std::make_unique<juce::AudioParameterFloat>("real room mix", "Real Room Amount", 0.0, 1.0, 0.0);
+    auto pMainMix = std::make_unique<juce::AudioParameterFloat>("main Mix", "Main Mix", 0.0, 1.0, 1.0);
     auto pOut = std::make_unique<juce::AudioParameterFloat>("out", "Out", juce::NormalisableRange<float> (-24.0f, 24.0f, 0.01f, 1.0f), 0.00f);
     
     params.push_back(std::move(pOSToggle));
@@ -74,7 +71,6 @@ juce::AudioProcessorValueTreeState::ParameterLayout TAMPERAudioProcessor::create
     params.push_back(std::move(pLowPass));
     params.push_back(std::move(pConv));
     params.push_back(std::move(pConvMix));
-    params.push_back(std::move(pMix));
     params.push_back(std::move(pMainMix));
     params.push_back(std::move(pOut));
     
@@ -112,20 +108,16 @@ void TAMPERAudioProcessor::parameterChanged(const juce::String &parameterID, flo
         lowPassFilter = newValue;
         lowPassFilterPost.setCutoffFrequency(lowPassFilter);
     }
-    if (parameterID == "convolve")
+    if (parameterID == "real room")
     {
         ConvolveOn = newValue;
     }
-    if (parameterID == "convMix")
+    if (parameterID == "real room mix")
     {
         ConvolveMixerValue = newValue;
         ConvolveMix.setWetMixProportion(newValue);
     }
-    if (parameterID == "mix")
-    {
-        mix = newValue;
-    }
-    if (parameterID == "mainMix")
+    if (parameterID == "main Mix")
     {
         mainMixValue = newValue;
         mainMix.setWetMixProportion(newValue);
@@ -208,6 +200,7 @@ void TAMPERAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock
     overSamplingModule.initProcessing(samplesPerBlock);
     overSamplingModule.reset();
     
+    //highpass, dist model and lowpass prep
     highPassFilterPre.prepare(spec);
     highPassFilterPre.setType(juce::dsp::LinkwitzRileyFilterType::highpass);
     highPassFilterPre.setCutoffFrequency(treeState.getRawParameterValue("high pass")->load());
@@ -219,22 +212,19 @@ void TAMPERAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock
     lowPassFilterPost.setType(juce::dsp::LinkwitzRileyFilterType::lowpass);
     lowPassFilterPost.setCutoffFrequency(treeState.getRawParameterValue("low pass")->load());
     
-    ConvolveOn = *treeState.getRawParameterValue("convolve");
+    //Convolution prep
+    ConvolveOn = *treeState.getRawParameterValue("real room");
     convolution.reset();
     convolution.prepare(spec);
     
-    //function to load IR from binary
     convolution.loadImpulseResponse(BinaryData::ABLCR_M2S_1_Loud_aif, BinaryData::ABLCR_M2S_1_Loud_aifSize, juce::dsp::Convolution::Stereo::yes, juce::dsp::Convolution::Trim::yes, 0, juce::dsp::Convolution::Normalise::no);
     
-    //Convolution mix
-    ConvolveMixerValue = *treeState.getRawParameterValue("convMix");
+    ConvolveMixerValue = *treeState.getRawParameterValue("real room mix");
     ConvolveMix.prepare(spec);
     ConvolveMix.setWetMixProportion(ConvolveMixerValue);
-
-    mix = treeState.getRawParameterValue("mix")->load();
     
-    //Main Mix test
-    mainMixValue = *treeState.getRawParameterValue("mainMix");
+    //Main Mix
+    mainMixValue = *treeState.getRawParameterValue("main Mix");
     mainMix.prepare(spec);
     mainMix.setWetMixProportion(mainMixValue);
     
@@ -289,11 +279,13 @@ void TAMPERAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce:
     juce::dsp::AudioBlock<float> block (buffer);
     juce::dsp::AudioBlock<float> upSampledBlock (buffer);
     
+    //Context replacing for main dry/wet
     juce::dsp::ProcessContextReplacing<float> contextMain (block);
     
     const auto& input = contextMain.getInputBlock();
     const auto& output = contextMain.getOutputBlock();
     
+    //pushing dry samples to main mix
     mainMix.pushDrySamples(input);
     
     //if oversampling on...
@@ -306,9 +298,7 @@ void TAMPERAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce:
 
             for (int sample = 0; sample < block.getNumSamples(); ++sample)
             {
-                auto dry = data[sample];
                 data[sample] = highPassFilterPre.processSample(channel, data[sample]);
-                data[sample] = (1.0 - mix.getNextValue()) * dry + mix.getNextValue() * data[sample];
             }
         }
         
@@ -321,8 +311,6 @@ void TAMPERAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce:
 
             for (int sample = 0; sample < upSampledBlock.getNumSamples(); ++sample)
             {
-                drySignal = data[sample]; //dry signal stored in variable
-
                 switch(disModel)
                 {
                     case DisModels::kSoft: data[sample] = softClipData(data[sample]); break;
@@ -330,9 +318,6 @@ void TAMPERAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce:
                     case DisModels::KTube: data[sample] = tubeData(data[sample]); break;
                     case DisModels::KSat: data[sample] = saturationData(data[sample]); break;
                 }
-                
-                blendSignal = (1.0 - mix.getNextValue()) * drySignal + mix.getNextValue() * data[sample];
-                data[sample] = blendSignal;
             }
         }
         //decrease sample rate back down
@@ -345,9 +330,7 @@ void TAMPERAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce:
 
             for (int sample = 0; sample < block.getNumSamples(); ++sample)
             {
-                auto dry = data[sample];
                 data[sample] = lowPassFilterPost.processSample(channel, data[sample]);
-                data[sample] = ((1.0 - mix.getNextValue()) * dry + mix.getNextValue() * data[sample]) * smoothOutput.getNextValue();
             }
         }
     }
@@ -361,7 +344,6 @@ void TAMPERAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce:
             
             for (int sample = 0; sample < block.getNumSamples(); ++sample)
             {
-                drySignal = data[sample]; //dry signal stored in variable
                 auto highPassed = highPassFilterPre.processSample(channel, data[sample]); // high pass filter pre distortion
                 
                 switch(disModel)
@@ -371,24 +353,20 @@ void TAMPERAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce:
                     case DisModels::KTube: data[sample] = tubeData(highPassed); break;
                     case DisModels::KSat: data[sample] = saturationData(highPassed); break;
                 }
-                
                 data[sample] = lowPassFilterPost.processSample(channel, data[sample]); // low pass filter post distortion
-
-                blendSignal = (1.0 - mix.getNextValue()) * drySignal + mix.getNextValue() * data[sample];
-                data[sample] = blendSignal * smoothOutput.getNextValue();
             }
         }
     }
     
-    //Convolution process and mix
+    //Context replacing for convolution
     juce::dsp::ProcessContextReplacing<float> contextConv (block);
     const auto& inputConv = contextConv.getInputBlock();
     const auto& outputConv = contextConv.getOutputBlock();
-
     ConvolveMix.pushDrySamples(inputConv);
     if (ConvolveOn) convolution.process(contextConv);
     ConvolveMix.mixWetSamples(outputConv);
     
+    //pushing wet samples to main mix
     mainMix.mixWetSamples(output);
 }
 
