@@ -102,6 +102,7 @@ private:
     //Mixer object instantiaton for convolution
     juce::dsp::DryWetMixer<float> ConvolveMix;
     float ConvolveMixerValue { 0.0 };
+    int roomType { 0 };
     
     //Main Mix object instantiation
     juce::dsp::DryWetMixer<float> mainMix;

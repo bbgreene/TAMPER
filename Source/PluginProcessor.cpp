@@ -28,6 +28,7 @@ TAMPERAudioProcessor::TAMPERAudioProcessor()
     treeState.addParameterListener("model", this);
     treeState.addParameterListener("low pass", this);
     treeState.addParameterListener("real room", this);
+    treeState.addParameterListener("room type", this);
     treeState.addParameterListener("real room mix", this);
     treeState.addParameterListener("main Mix", this);
     treeState.addParameterListener("phase", this);
@@ -42,6 +43,7 @@ TAMPERAudioProcessor::~TAMPERAudioProcessor()
     treeState.removeParameterListener("model", this);
     treeState.removeParameterListener("low pass", this);
     treeState.removeParameterListener("real room", this);
+    treeState.removeParameterListener("room type", this);
     treeState.removeParameterListener("real room mix", this);
     treeState.removeParameterListener("main Mix", this);
     treeState.removeParameterListener("phase", this);
@@ -53,8 +55,9 @@ juce::AudioProcessorValueTreeState::ParameterLayout TAMPERAudioProcessor::create
     std::vector <std::unique_ptr<juce::RangedAudioParameter>> params;
     
     juce::StringArray disModels = { "Soft", "Hard", "Tube", "Saturation" };
+    juce::StringArray roomSelector = { "IR1", "IR2" };
     
-    params.reserve(10);
+    params.reserve(11);
     
     auto pOSToggle = std::make_unique<juce::AudioParameterBool>("oversample", "Oversample", false);
     auto pHighPass = std::make_unique<juce::AudioParameterFloat>("high pass", "High Pass", juce::NormalisableRange<float> (20.0, 2000.0, 1.0, 0.22), 20.0);
@@ -62,6 +65,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout TAMPERAudioProcessor::create
     auto pModels = std::make_unique<juce::AudioParameterChoice>("model", "Model", disModels, 0);
     auto pLowPass = std::make_unique<juce::AudioParameterFloat>("low pass", "Low Pass", juce::NormalisableRange<float> (10000.0, 20000.0, 1.0, 0.22), 20000.0);
     auto pConv = std::make_unique<juce::AudioParameterBool>("real room", "Real Room", false);
+    auto pRoomChoice = std::make_unique<juce::AudioParameterChoice>("room type", "Room Type", roomSelector, 1);
     auto pConvMix = std::make_unique<juce::AudioParameterFloat>("real room mix", "Real Room Amount", 0.0, 1.0, 0.0);
     auto pMainMix = std::make_unique<juce::AudioParameterFloat>("main Mix", "Main Mix", 0.0, 1.0, 1.0);
     auto pPhase = std::make_unique<juce::AudioParameterBool>("phase", "Phase", false);
@@ -73,6 +77,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout TAMPERAudioProcessor::create
     params.push_back(std::move(pModels));
     params.push_back(std::move(pLowPass));
     params.push_back(std::move(pConv));
+    params.push_back(std::move(pRoomChoice));
     params.push_back(std::move(pConvMix));
     params.push_back(std::move(pMainMix));
     params.push_back(std::move(pPhase));
@@ -115,6 +120,19 @@ void TAMPERAudioProcessor::parameterChanged(const juce::String &parameterID, flo
     if (parameterID == "real room")
     {
         ConvolveOn = newValue;
+    }
+    if (parameterID == "room type")
+    {
+        roomType = newValue;
+        switch (static_cast<int>(newValue))
+        {
+            case 0:
+                convolution.loadImpulseResponse(BinaryData::ABLCR_M2S_1_Loud_aif, BinaryData::ABLCR_M2S_1_Loud_aifSize, juce::dsp::Convolution::Stereo::yes, juce::dsp::Convolution::Trim::yes, 0, juce::dsp::Convolution::Normalise::no);
+                break;
+            case 1:
+                convolution.loadImpulseResponse(BinaryData::cassette_recorder_wav, BinaryData::cassette_recorder_wavSize, juce::dsp::Convolution::Stereo::yes, juce::dsp::Convolution::Trim::yes, 0, juce::dsp::Convolution::Normalise::no);
+                break;
+        }
     }
     if (parameterID == "real room mix")
     {
@@ -225,7 +243,17 @@ void TAMPERAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock
     convolution.reset();
     convolution.prepare(spec);
     
-    convolution.loadImpulseResponse(BinaryData::ABLCR_M2S_1_Loud_aif, BinaryData::ABLCR_M2S_1_Loud_aifSize, juce::dsp::Convolution::Stereo::yes, juce::dsp::Convolution::Trim::yes, 0, juce::dsp::Convolution::Normalise::no);
+    roomType = treeState.getRawParameterValue("room type")->load();
+    
+    switch (roomType)
+    {
+        case 0:
+            convolution.loadImpulseResponse(BinaryData::ABLCR_M2S_1_Loud_aif, BinaryData::ABLCR_M2S_1_Loud_aifSize, juce::dsp::Convolution::Stereo::yes, juce::dsp::Convolution::Trim::yes, 0, juce::dsp::Convolution::Normalise::no);
+            break;
+        case 1:
+            convolution.loadImpulseResponse(BinaryData::cassette_recorder_wav, BinaryData::cassette_recorder_wavSize, juce::dsp::Convolution::Stereo::yes, juce::dsp::Convolution::Trim::yes, 0, juce::dsp::Convolution::Normalise::no);
+            break;
+    }
     
     ConvolveMixerValue = *treeState.getRawParameterValue("real room mix");
     ConvolveMix.prepare(spec);
@@ -330,6 +358,7 @@ void TAMPERAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce:
     outputModule.process(juce::dsp::ProcessContextReplacing<float>(block));
 }
 
+//Function for processing samples through distortion models
 void TAMPERAudioProcessor::processDistortion(juce::dsp::AudioBlock<float> &block)
 {
     for(int channel = 0; channel < block.getNumChannels(); ++channel)
