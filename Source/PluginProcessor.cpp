@@ -124,15 +124,7 @@ void TAMPERAudioProcessor::parameterChanged(const juce::String &parameterID, flo
     if (parameterID == "room type")
     {
         roomType = newValue;
-        switch (static_cast<int>(newValue))
-        {
-            case 0:
-                convolution.loadImpulseResponse(BinaryData::ABLCR_M2S_1_Loud_aif, BinaryData::ABLCR_M2S_1_Loud_aifSize, juce::dsp::Convolution::Stereo::yes, juce::dsp::Convolution::Trim::yes, 0, juce::dsp::Convolution::Normalise::no);
-                break;
-            case 1:
-                convolution.loadImpulseResponse(BinaryData::cassette_recorder_wav, BinaryData::cassette_recorder_wavSize, juce::dsp::Convolution::Stereo::yes, juce::dsp::Convolution::Trim::yes, 0, juce::dsp::Convolution::Normalise::no);
-                break;
-        }
+        irSelection(static_cast<int>(newValue));
     }
     if (parameterID == "real room mix")
     {
@@ -244,16 +236,7 @@ void TAMPERAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock
     convolution.prepare(spec);
     
     roomType = treeState.getRawParameterValue("room type")->load();
-    
-    switch (roomType)
-    {
-        case 0:
-            convolution.loadImpulseResponse(BinaryData::ABLCR_M2S_1_Loud_aif, BinaryData::ABLCR_M2S_1_Loud_aifSize, juce::dsp::Convolution::Stereo::yes, juce::dsp::Convolution::Trim::yes, 0, juce::dsp::Convolution::Normalise::no);
-            break;
-        case 1:
-            convolution.loadImpulseResponse(BinaryData::cassette_recorder_wav, BinaryData::cassette_recorder_wavSize, juce::dsp::Convolution::Stereo::yes, juce::dsp::Convolution::Trim::yes, 0, juce::dsp::Convolution::Normalise::no);
-            break;
-    }
+    irSelection(roomType);
     
     ConvolveMixerValue = *treeState.getRawParameterValue("real room mix");
     ConvolveMix.prepare(spec);
@@ -439,6 +422,19 @@ float TAMPERAudioProcessor::saturationData(float sample)
         sample = -0.8;
     }
     return sample;
+}
+
+void TAMPERAudioProcessor::irSelection(int roomType)
+{
+    switch (roomType)
+    {
+        case 0:
+            convolution.loadImpulseResponse(BinaryData::ABLCR_M2S_1_Loud_aif, BinaryData::ABLCR_M2S_1_Loud_aifSize, juce::dsp::Convolution::Stereo::yes, juce::dsp::Convolution::Trim::yes, 0, juce::dsp::Convolution::Normalise::no);
+            break;
+        case 1:
+            convolution.loadImpulseResponse(BinaryData::cassette_recorder_wav, BinaryData::cassette_recorder_wavSize, juce::dsp::Convolution::Stereo::yes, juce::dsp::Convolution::Trim::yes, 0, juce::dsp::Convolution::Normalise::no);
+            break;
+    }
 }
 
 //==============================================================================
