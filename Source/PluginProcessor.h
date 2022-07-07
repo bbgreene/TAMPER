@@ -113,6 +113,9 @@ private:
     //Distortion Process
     void processDistortion(juce::dsp::AudioBlock<float> &block);
     
+    // Phase variable
+    bool phase { false };
+    
     //parameter layout and change functions
     juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
     void parameterChanged (const juce::String& parameterID, float newValue) override;

@@ -30,6 +30,7 @@ TAMPERAudioProcessor::TAMPERAudioProcessor()
     treeState.addParameterListener("real room", this);
     treeState.addParameterListener("real room mix", this);
     treeState.addParameterListener("main Mix", this);
+    treeState.addParameterListener("phase", this);
     treeState.addParameterListener("out", this);
 }
 
@@ -43,6 +44,7 @@ TAMPERAudioProcessor::~TAMPERAudioProcessor()
     treeState.removeParameterListener("real room", this);
     treeState.removeParameterListener("real room mix", this);
     treeState.removeParameterListener("main Mix", this);
+    treeState.removeParameterListener("phase", this);
     treeState.removeParameterListener("out", this);
 }
 
@@ -52,7 +54,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout TAMPERAudioProcessor::create
     
     juce::StringArray disModels = { "Soft", "Hard", "Tube", "Saturation" };
     
-    params.reserve(9);
+    params.reserve(10);
     
     auto pOSToggle = std::make_unique<juce::AudioParameterBool>("oversample", "Oversample", false);
     auto pHighPass = std::make_unique<juce::AudioParameterFloat>("high pass", "High Pass", juce::NormalisableRange<float> (20.0, 2000.0, 1.0, 0.22), 20.0);
@@ -62,6 +64,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout TAMPERAudioProcessor::create
     auto pConv = std::make_unique<juce::AudioParameterBool>("real room", "Real Room", false);
     auto pConvMix = std::make_unique<juce::AudioParameterFloat>("real room mix", "Real Room Amount", 0.0, 1.0, 0.0);
     auto pMainMix = std::make_unique<juce::AudioParameterFloat>("main Mix", "Main Mix", 0.0, 1.0, 1.0);
+    auto pPhase = std::make_unique<juce::AudioParameterBool>("phase", "Phase", false);
     auto pOut = std::make_unique<juce::AudioParameterFloat>("out", "Out", -24.0f, 24.0f, 0.0f);
     
     params.push_back(std::move(pOSToggle));
@@ -72,6 +75,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout TAMPERAudioProcessor::create
     params.push_back(std::move(pConv));
     params.push_back(std::move(pConvMix));
     params.push_back(std::move(pMainMix));
+    params.push_back(std::move(pPhase));
     params.push_back(std::move(pOut));
     
     return { params.begin(), params.end() };
@@ -121,6 +125,10 @@ void TAMPERAudioProcessor::parameterChanged(const juce::String &parameterID, flo
     {
         mainMixValue = newValue;
         mainMix.setWetMixProportion(newValue);
+    }
+    if (parameterID == "phase")
+    {
+        phase = newValue;
     }
     outputModule.setGainDecibels(treeState.getRawParameterValue("out")->load());
 }
@@ -227,6 +235,8 @@ void TAMPERAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock
     mainMixValue = *treeState.getRawParameterValue("main Mix");
     mainMix.prepare(spec);
     mainMix.setWetMixProportion(mainMixValue);
+    
+    phase = *treeState.getRawParameterValue("phase");
     
     //Output gain module prep
     outputModule.reset();
@@ -335,6 +345,7 @@ void TAMPERAudioProcessor::processDistortion(juce::dsp::AudioBlock<float> &block
                 case DisModels::KTube: data[sample] = tubeData(data[sample]); break;
                 case DisModels::KSat: data[sample] = saturationData(data[sample]); break;
             }
+            if(phase) data[sample] *= -1.0;
         }
     }
 }
