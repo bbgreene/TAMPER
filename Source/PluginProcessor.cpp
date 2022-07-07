@@ -283,7 +283,6 @@ void TAMPERAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce:
     
     //Context replacing for main dry/wet
     juce::dsp::ProcessContextReplacing<float> contextMain (block);
-    
     const auto& input = contextMain.getInputBlock();
     const auto& output = contextMain.getOutputBlock();
     
@@ -293,71 +292,19 @@ void TAMPERAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce:
     //if oversampling on...
     if(osToggle)
     {
-        // high pass filter pre distortion
-        for(int channel = 0; channel < block.getNumChannels(); ++channel)
-        {
-            float* data = block.getChannelPointer(channel);
-
-            for (int sample = 0; sample < block.getNumSamples(); ++sample)
-            {
-                data[sample] = highPassFilterPre.processSample(channel, data[sample]);
-            }
-        }
-        
-        //increase sample rate
+        highPassFilterPre.process(juce::dsp::ProcessContextReplacing<float>(block));
         upSampledBlock = overSamplingModule.processSamplesUp(block);
-        
-        for(int channel = 0; channel < upSampledBlock.getNumChannels(); ++channel)
-        {
-            float* data = upSampledBlock.getChannelPointer(channel);
-
-            for (int sample = 0; sample < upSampledBlock.getNumSamples(); ++sample)
-            {
-                switch(disModel)
-                {
-                    case DisModels::kSoft: data[sample] = softClipData(data[sample]); break;
-                    case DisModels::KHard: data[sample] = hardClipData(data[sample]); break;
-                    case DisModels::KTube: data[sample] = tubeData(data[sample]); break;
-                    case DisModels::KSat: data[sample] = saturationData(data[sample]); break;
-                }
-            }
-        }
-        //decrease sample rate back down
+        processDistortion(upSampledBlock);
         overSamplingModule.processSamplesDown(block);
-        
-        // low pass filter post distortion
-        for(int channel = 0; channel < block.getNumChannels(); ++channel)
-        {
-            float* data = block.getChannelPointer(channel);
-
-            for (int sample = 0; sample < block.getNumSamples(); ++sample)
-            {
-                data[sample] = lowPassFilterPost.processSample(channel, data[sample]);
-            }
-        }
+        lowPassFilterPost.process(juce::dsp::ProcessContextReplacing<float>(block));
     }
     
     //if oversampling is off...
     else
     {
-        for(int channel = 0; channel < block.getNumChannels(); ++channel)
-        {
-            float* data = block.getChannelPointer(channel);
-            
-            for (int sample = 0; sample < block.getNumSamples(); ++sample)
-            {
-                auto highPassed = highPassFilterPre.processSample(channel, data[sample]); // high pass filter pre distortion
-                
-                switch(disModel)
-                {
-                    case DisModels::kSoft: data[sample] = softClipData(highPassed); break;
-                    case DisModels::KHard: data[sample] = hardClipData(highPassed); break;
-                    case DisModels::KTube: data[sample] = tubeData(highPassed); break;
-                    case DisModels::KSat: data[sample] = saturationData(highPassed); break;
-                }
-                data[sample] = lowPassFilterPost.processSample(channel, data[sample]); // low pass filter post distortion
-            }
-        }
+        highPassFilterPre.process(juce::dsp::ProcessContextReplacing<float>(block));
+        processDistortion(block);
+        lowPassFilterPost.process(juce::dsp::ProcessContextReplacing<float>(block));
     }
     
     //Context replacing for convolution
@@ -368,13 +315,29 @@ void TAMPERAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce:
     if (ConvolveOn) convolution.process(contextConv);
     ConvolveMix.mixWetSamples(outputConv);
     
-    //pushing wet samples to main mix
+    //pushing wet samples to main mix and output module gain
     mainMix.mixWetSamples(output);
-    
-    //output module gain
     outputModule.process(juce::dsp::ProcessContextReplacing<float>(block));
 }
 
+void TAMPERAudioProcessor::processDistortion(juce::dsp::AudioBlock<float> &block)
+{
+    for(int channel = 0; channel < block.getNumChannels(); ++channel)
+    {
+        float* data = block.getChannelPointer(channel);
+        
+        for (int sample = 0; sample < block.getNumSamples(); ++sample)
+        {
+            switch(disModel)
+            {
+                case DisModels::kSoft: data[sample] = softClipData(data[sample]); break;
+                case DisModels::KHard: data[sample] = hardClipData(data[sample]); break;
+                case DisModels::KTube: data[sample] = tubeData(data[sample]); break;
+                case DisModels::KSat: data[sample] = saturationData(data[sample]); break;
+            }
+        }
+    }
+}
 // softclip function (rounded)
 float TAMPERAudioProcessor::softClipData(float sample)
 {

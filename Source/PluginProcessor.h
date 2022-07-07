@@ -110,6 +110,9 @@ private:
     //Output
     juce::dsp::Gain<float> outputModule;
     
+    //Distortion Process
+    void processDistortion(juce::dsp::AudioBlock<float> &block);
+    
     //parameter layout and change functions
     juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
     void parameterChanged (const juce::String& parameterID, float newValue) override;
