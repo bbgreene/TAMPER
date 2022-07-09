@@ -55,7 +55,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout TAMPERAudioProcessor::create
     std::vector <std::unique_ptr<juce::RangedAudioParameter>> params;
     
     juce::StringArray disModels = { "Soft", "Hard", "Tube", "Saturation" };
-    juce::StringArray roomSelector = { "IR1", "IR2" };
+    juce::StringArray roomSelector = { "Dull Short", "Bright Short Wide", "Deep Short", "Deep Long" };
     
     params.reserve(11);
     
@@ -65,7 +65,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout TAMPERAudioProcessor::create
     auto pModels = std::make_unique<juce::AudioParameterChoice>("model", "Model", disModels, 0);
     auto pLowPass = std::make_unique<juce::AudioParameterFloat>("low pass", "Low Pass", juce::NormalisableRange<float> (10000.0, 20000.0, 1.0, 0.22), 20000.0);
     auto pConv = std::make_unique<juce::AudioParameterBool>("real room", "Real Room", false);
-    auto pRoomChoice = std::make_unique<juce::AudioParameterChoice>("room type", "Room Type", roomSelector, 1);
+    auto pRoomChoice = std::make_unique<juce::AudioParameterChoice>("room type", "Room Type", roomSelector, 0);
     auto pConvMix = std::make_unique<juce::AudioParameterFloat>("real room mix", "Real Room Amount", 0.0, 1.0, 0.0);
     auto pMainMix = std::make_unique<juce::AudioParameterFloat>("main Mix", "Main Mix", 0.0, 1.0, 1.0);
     auto pPhase = std::make_unique<juce::AudioParameterBool>("phase", "Phase", false);
@@ -429,10 +429,16 @@ void TAMPERAudioProcessor::irSelection(int roomType)
     switch (roomType)
     {
         case 0:
-            convolution.loadImpulseResponse(BinaryData::ABLCR_M2S_1_Loud_aif, BinaryData::ABLCR_M2S_1_Loud_aifSize, juce::dsp::Convolution::Stereo::yes, juce::dsp::Convolution::Trim::yes, 0, juce::dsp::Convolution::Normalise::no);
+            convolution.loadImpulseResponse(BinaryData::A_Dull_Short_aif, BinaryData::A_Dull_Short_aifSize, juce::dsp::Convolution::Stereo::yes, juce::dsp::Convolution::Trim::yes, 0, juce::dsp::Convolution::Normalise::yes);
             break;
         case 1:
-            convolution.loadImpulseResponse(BinaryData::cassette_recorder_wav, BinaryData::cassette_recorder_wavSize, juce::dsp::Convolution::Stereo::yes, juce::dsp::Convolution::Trim::yes, 0, juce::dsp::Convolution::Normalise::no);
+            convolution.loadImpulseResponse(BinaryData::B_Bright_Short_Wide_aif, BinaryData::B_Bright_Short_Wide_aifSize, juce::dsp::Convolution::Stereo::yes, juce::dsp::Convolution::Trim::yes, 0, juce::dsp::Convolution::Normalise::yes);
+            break;
+        case 2:
+            convolution.loadImpulseResponse(BinaryData::C_Deep_Short_aif, BinaryData::C_Deep_Short_aifSize, juce::dsp::Convolution::Stereo::yes, juce::dsp::Convolution::Trim::yes, 0, juce::dsp::Convolution::Normalise::yes);
+            break;
+        case 3:
+            convolution.loadImpulseResponse(BinaryData::D_Deep_Long_aif, BinaryData::D_Deep_Long_aifSize, juce::dsp::Convolution::Stereo::yes, juce::dsp::Convolution::Trim::yes, 0, juce::dsp::Convolution::Normalise::yes);
             break;
     }
 }

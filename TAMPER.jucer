@@ -13,11 +13,13 @@
             file="Source/PluginEditor.cpp"/>
       <FILE id="kIVj1V" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
     </GROUP>
-    <FILE id="DhOTo7" name="ABLCR_M2S_1.aif" compile="0" resource="1" file="ABLCR_M2S_1.aif"/>
-    <FILE id="sg7HwM" name="ABLCR_M2S_1_Loud.aif" compile="0" resource="1"
-          file="ABLCR_M2S_1_Loud.aif"/>
-    <FILE id="tQRoqF" name="cassette_recorder.wav" compile="0" resource="1"
-          file="cassette_recorder.wav"/>
+    <FILE id="GleJwg" name="A_Dull_Short.aif" compile="0" resource="1"
+          file="A_Dull_Short.aif"/>
+    <FILE id="OmglSg" name="B_Bright_Short_Wide.aif" compile="0" resource="1"
+          file="B_Bright_Short_Wide.aif"/>
+    <FILE id="RUu5K9" name="C_Deep_Short.aif" compile="0" resource="1"
+          file="C_Deep_Short.aif"/>
+    <FILE id="hNATBT" name="D_Deep_Long.aif" compile="0" resource="1" file="D_Deep_Long.aif"/>
   </MAINGROUP>
   <JUCEOPTIONS JUCE_STRICT_REFCOUNTEDPOINTER="1" JUCE_VST3_CAN_REPLACE_VST2="0"/>
   <EXPORTFORMATS>
