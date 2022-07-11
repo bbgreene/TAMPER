@@ -60,7 +60,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout TAMPERAudioProcessor::create
 {
     std::vector <std::unique_ptr<juce::RangedAudioParameter>> params;
     
-    juce::StringArray disModels = { "Soft", "Hard", "Tube Broken", "Tube Saturation" };
+    juce::StringArray disModels = { "Soft", "Hard", "Tube Saturation", "Tube Broken" };
     juce::StringArray ampSimSelector = { "Amp A Ribbon", "Amp A 57", "Amp B Cond", "Amp C Ribbon", "Amp D Bass MD441", "Amp D Bass Bright" };
     
     params.reserve(14);
@@ -120,8 +120,8 @@ void TAMPERAudioProcessor::parameterChanged(const juce::String &parameterID, flo
         {
             case 0: disModel = DisModels::kSoft; break;
             case 1: disModel = DisModels::KHard; break;
-            case 2: disModel = DisModels::KTube; break;
-            case 3: disModel = DisModels::KSat; break;
+            case 2: disModel = DisModels::KSat; break;
+            case 3: disModel = DisModels::KTube; break;
         }
     }
     if (parameterID == "low pass")
