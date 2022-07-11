@@ -55,7 +55,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout TAMPERAudioProcessor::create
     std::vector <std::unique_ptr<juce::RangedAudioParameter>> params;
     
     juce::StringArray disModels = { "Soft", "Hard", "Tube", "Saturation" };
-    juce::StringArray roomSelector = { "Dull Short", "Bright Short Wide", "Deep Short", "Deep Long" };
+    juce::StringArray roomSelector = { "A", "B", "C", "D", "E", "F" };
     
     params.reserve(11);
     
@@ -336,6 +336,8 @@ void TAMPERAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce:
     if (ConvolveOn) convolution.process(contextConv);
     ConvolveMix.mixWetSamples(outputConv);
     
+//    if (ConvolveOn) convolution.process(contextMain);
+    
     //pushing wet samples to main mix and output module gain
     mainMix.mixWetSamples(output);
     outputModule.process(juce::dsp::ProcessContextReplacing<float>(block));
@@ -429,16 +431,22 @@ void TAMPERAudioProcessor::irSelection(int roomType)
     switch (roomType)
     {
         case 0:
-            convolution.loadImpulseResponse(BinaryData::A_Dull_Short_aif, BinaryData::A_Dull_Short_aifSize, juce::dsp::Convolution::Stereo::yes, juce::dsp::Convolution::Trim::yes, 0, juce::dsp::Convolution::Normalise::yes);
+            convolution.loadImpulseResponse(BinaryData::A_Amp_One_Ribbon_aif, BinaryData::A_Amp_One_Ribbon_aifSize, juce::dsp::Convolution::Stereo::yes, juce::dsp::Convolution::Trim::no, 0, juce::dsp::Convolution::Normalise::no);
             break;
         case 1:
-            convolution.loadImpulseResponse(BinaryData::B_Bright_Short_Wide_aif, BinaryData::B_Bright_Short_Wide_aifSize, juce::dsp::Convolution::Stereo::yes, juce::dsp::Convolution::Trim::yes, 0, juce::dsp::Convolution::Normalise::yes);
+            convolution.loadImpulseResponse(BinaryData::B_Amp_One_57_aif, BinaryData::B_Amp_One_57_aifSize, juce::dsp::Convolution::Stereo::yes, juce::dsp::Convolution::Trim::no, 0, juce::dsp::Convolution::Normalise::no);
             break;
         case 2:
-            convolution.loadImpulseResponse(BinaryData::C_Deep_Short_aif, BinaryData::C_Deep_Short_aifSize, juce::dsp::Convolution::Stereo::yes, juce::dsp::Convolution::Trim::yes, 0, juce::dsp::Convolution::Normalise::yes);
+            convolution.loadImpulseResponse(BinaryData::C_Amp_Two_Cond_aif, BinaryData::C_Amp_Two_Cond_aifSize, juce::dsp::Convolution::Stereo::yes, juce::dsp::Convolution::Trim::no, 0, juce::dsp::Convolution::Normalise::no);
             break;
         case 3:
-            convolution.loadImpulseResponse(BinaryData::D_Deep_Long_aif, BinaryData::D_Deep_Long_aifSize, juce::dsp::Convolution::Stereo::yes, juce::dsp::Convolution::Trim::yes, 0, juce::dsp::Convolution::Normalise::yes);
+            convolution.loadImpulseResponse(BinaryData::D_Amp_Three_Ribbon_aif, BinaryData::D_Amp_Three_Ribbon_aifSize, juce::dsp::Convolution::Stereo::yes, juce::dsp::Convolution::Trim::no, 0, juce::dsp::Convolution::Normalise::no);
+            break;
+        case 4:
+            convolution.loadImpulseResponse(BinaryData::E_Amp_Four_Bass_MD441_aif, BinaryData::E_Amp_Four_Bass_MD441_aifSize, juce::dsp::Convolution::Stereo::no, juce::dsp::Convolution::Trim::no, 0, juce::dsp::Convolution::Normalise::no);
+            break;
+        case 5:
+            convolution.loadImpulseResponse(BinaryData::F_Amp_Four_Bass_Bright_aif, BinaryData::F_Amp_Four_Bass_Bright_aifSize, juce::dsp::Convolution::Stereo::no, juce::dsp::Convolution::Trim::no, 0, juce::dsp::Convolution::Normalise::no);
             break;
     }
 }

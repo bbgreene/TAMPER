@@ -4,6 +4,20 @@
               addUsingNamespaceToJuceHeader="0" jucerFormatVersion="1" pluginManufacturer="Olumay dsp"
               cppLanguageStandard="17">
   <MAINGROUP id="ZNQEz3" name="TAMPER">
+    <GROUP id="{AA9AB129-B017-2A0E-31EF-984886F0CA7B}" name="IRs">
+      <FILE id="ZNSXIJ" name="A_Amp_One_Ribbon.aif" compile="0" resource="1"
+            file="IRs/A_Amp_One_Ribbon.aif"/>
+      <FILE id="ZxaF9K" name="B_Amp_One_57.aif" compile="0" resource="1"
+            file="IRs/B_Amp_One_57.aif"/>
+      <FILE id="mOg1mZ" name="C_Amp_Two_Cond.aif" compile="0" resource="1"
+            file="IRs/C_Amp_Two_Cond.aif"/>
+      <FILE id="UFNuaH" name="D_Amp_Three_Ribbon.aif" compile="0" resource="1"
+            file="IRs/D_Amp_Three_Ribbon.aif"/>
+      <FILE id="nwUUQK" name="E_Amp_Four_Bass_MD441.aif" compile="0" resource="1"
+            file="IRs/E_Amp_Four_Bass_MD441.aif"/>
+      <FILE id="SIV9HF" name="F_Amp_Four_Bass_Bright.aif" compile="0" resource="1"
+            file="IRs/F_Amp_Four_Bass_Bright.aif"/>
+    </GROUP>
     <GROUP id="{A7D1C2EB-55F8-7A7F-B872-84A63BD66B08}" name="Source">
       <FILE id="B7vCak" name="PluginProcessor.cpp" compile="1" resource="0"
             file="Source/PluginProcessor.cpp"/>
@@ -13,13 +27,6 @@
             file="Source/PluginEditor.cpp"/>
       <FILE id="kIVj1V" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
     </GROUP>
-    <FILE id="GleJwg" name="A_Dull_Short.aif" compile="0" resource="1"
-          file="A_Dull_Short.aif"/>
-    <FILE id="OmglSg" name="B_Bright_Short_Wide.aif" compile="0" resource="1"
-          file="B_Bright_Short_Wide.aif"/>
-    <FILE id="RUu5K9" name="C_Deep_Short.aif" compile="0" resource="1"
-          file="C_Deep_Short.aif"/>
-    <FILE id="hNATBT" name="D_Deep_Long.aif" compile="0" resource="1" file="D_Deep_Long.aif"/>
   </MAINGROUP>
   <JUCEOPTIONS JUCE_STRICT_REFCOUNTEDPOINTER="1" JUCE_VST3_CAN_REPLACE_VST2="0"/>
   <EXPORTFORMATS>
