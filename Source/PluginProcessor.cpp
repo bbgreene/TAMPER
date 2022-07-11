@@ -31,6 +31,9 @@ TAMPERAudioProcessor::TAMPERAudioProcessor()
     treeState.addParameterListener("ampsim type", this);
     treeState.addParameterListener("amp sim mix", this);
     treeState.addParameterListener("main Mix", this);
+    treeState.addParameterListener("limiter", this);
+    treeState.addParameterListener("thres", this);
+    treeState.addParameterListener("release", this);
     treeState.addParameterListener("phase", this);
     treeState.addParameterListener("out", this);
 }
@@ -46,6 +49,9 @@ TAMPERAudioProcessor::~TAMPERAudioProcessor()
     treeState.removeParameterListener("ampsim type", this);
     treeState.removeParameterListener("amp sim mix", this);
     treeState.removeParameterListener("main Mix", this);
+    treeState.removeParameterListener("limiter", this);
+    treeState.removeParameterListener("thres", this);
+    treeState.removeParameterListener("release", this);
     treeState.removeParameterListener("phase", this);
     treeState.removeParameterListener("out", this);
 }
@@ -54,20 +60,23 @@ juce::AudioProcessorValueTreeState::ParameterLayout TAMPERAudioProcessor::create
 {
     std::vector <std::unique_ptr<juce::RangedAudioParameter>> params;
     
-    juce::StringArray disModels = { "Soft", "Hard", "Tube", "Saturation" };
-    juce::StringArray ampSimSelector = { "Amp 1 Ribbon", "Amp 1 57", "Amp 2 Cond", "Amp 3 Ribbon", "Amp 4 MD441", "Amp 4 Bright" };
+    juce::StringArray disModels = { "Soft", "Hard", "Tube Broken", "Tube Saturation" };
+    juce::StringArray ampSimSelector = { "Amp A Ribbon", "Amp A 57", "Amp B Cond", "Amp C Ribbon", "Amp D Bass MD441", "Amp D Bass Bright" };
     
-    params.reserve(11);
+    params.reserve(14);
     
     auto pOSToggle = std::make_unique<juce::AudioParameterBool>("oversample", "Oversample", false);
     auto pHighPass = std::make_unique<juce::AudioParameterFloat>("high pass", "High Pass", juce::NormalisableRange<float> (20.0, 2000.0, 1.0, 0.22), 20.0);
     auto pDrive = std::make_unique<juce::AudioParameterFloat>("drive", "Drive", 0.0, 24.0, 0.0);
     auto pModels = std::make_unique<juce::AudioParameterChoice>("model", "Model", disModels, 0);
     auto pLowPass = std::make_unique<juce::AudioParameterFloat>("low pass", "Low Pass", juce::NormalisableRange<float> (10000.0, 20000.0, 1.0, 0.22), 20000.0);
-    auto pConv = std::make_unique<juce::AudioParameterBool>("amp sim", "Amp Sim", false);
-    auto pRoomChoice = std::make_unique<juce::AudioParameterChoice>("ampsim type", "AmpSim Type", ampSimSelector, 0);
-    auto pConvMix = std::make_unique<juce::AudioParameterFloat>("amp sim mix", "Amp Sim Mix", 0.0, 1.0, 0.0);
+    auto pConv = std::make_unique<juce::AudioParameterBool>("amp sim", "Amp Sim", true);
+    auto pSimChoice = std::make_unique<juce::AudioParameterChoice>("ampsim type", "AmpSim Type", ampSimSelector, 0);
+    auto pConvMix = std::make_unique<juce::AudioParameterFloat>("amp sim mix", "Amp Sim Mix", 0.0, 1.0, 1.0);
     auto pMainMix = std::make_unique<juce::AudioParameterFloat>("main Mix", "Main Mix", 0.0, 1.0, 1.0);
+    auto pLimitOn = std::make_unique<juce::AudioParameterBool>("limiter", "Limiter", false);
+    auto pLimitThres = std::make_unique<juce::AudioParameterFloat>("thres", "Threshold", -60.0, 0.0, 0.0);
+    auto pLimitRel = std::make_unique<juce::AudioParameterFloat>("release", "Release", 1.0, 1000.0, 100.0);
     auto pPhase = std::make_unique<juce::AudioParameterBool>("phase", "Phase", false);
     auto pOut = std::make_unique<juce::AudioParameterFloat>("out", "Out", -24.0f, 24.0f, 0.0f);
     
@@ -77,9 +86,12 @@ juce::AudioProcessorValueTreeState::ParameterLayout TAMPERAudioProcessor::create
     params.push_back(std::move(pModels));
     params.push_back(std::move(pLowPass));
     params.push_back(std::move(pConv));
-    params.push_back(std::move(pRoomChoice));
+    params.push_back(std::move(pSimChoice));
     params.push_back(std::move(pConvMix));
     params.push_back(std::move(pMainMix));
+    params.push_back(std::move(pLimitOn));
+    params.push_back(std::move(pLimitThres));
+    params.push_back(std::move(pLimitRel));
     params.push_back(std::move(pPhase));
     params.push_back(std::move(pOut));
     
@@ -131,6 +143,10 @@ void TAMPERAudioProcessor::parameterChanged(const juce::String &parameterID, flo
         ConvolveMixerValue = newValue;
         ConvolveMix.setWetMixProportion(newValue);
     }
+    if (parameterID == "limiter")
+    {
+        limiterOn = newValue;
+    }
     if (parameterID == "main Mix")
     {
         mainMixValue = newValue;
@@ -140,6 +156,8 @@ void TAMPERAudioProcessor::parameterChanged(const juce::String &parameterID, flo
     {
         phase = newValue;
     }
+    limiterModule.setThreshold(treeState.getRawParameterValue("thres")->load());
+    limiterModule.setRelease(treeState.getRawParameterValue("release")->load());
     outputModule.setGainDecibels(treeState.getRawParameterValue("out")->load());
 }
 
@@ -249,6 +267,13 @@ void TAMPERAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock
     
     phase = *treeState.getRawParameterValue("phase");
     
+    //Limiter module prep
+    limiterModule.reset();
+    limiterModule.prepare(spec);
+    limiterModule.setThreshold(treeState.getRawParameterValue("thres")->load());
+    limiterModule.setRelease(treeState.getRawParameterValue("release")->load());
+    limiterOn = *treeState.getRawParameterValue("limiter");
+    
     //Output gain module prep
     outputModule.reset();
     outputModule.prepare(spec);
@@ -338,6 +363,7 @@ void TAMPERAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce:
         
     //pushing wet samples to main mix and output module gain
     mainMix.mixWetSamples(output);
+    if (limiterOn) limiterModule.process(juce::dsp::ProcessContextReplacing<float>(block));
     outputModule.process(juce::dsp::ProcessContextReplacing<float>(block));
 }
 
@@ -354,8 +380,8 @@ void TAMPERAudioProcessor::processDistortion(juce::dsp::AudioBlock<float> &block
             {
                 case DisModels::kSoft: data[sample] = softClipData(data[sample]); break;
                 case DisModels::KHard: data[sample] = hardClipData(data[sample]); break;
-                case DisModels::KTube: data[sample] = tubeData(data[sample]); break;
                 case DisModels::KSat: data[sample] = saturationData(data[sample]); break;
+                case DisModels::KTube: data[sample] = tubeData(data[sample]); break;
             }
             if(phase) data[sample] *= -1.0;
         }
@@ -365,6 +391,7 @@ void TAMPERAudioProcessor::processDistortion(juce::dsp::AudioBlock<float> &block
 float TAMPERAudioProcessor::softClipData(float sample)
 {
     sample *= rawInput * 1.6;
+    sample = piDivisor * std::atan(sample);
     return piDivisor * std::atan(sample);
 }
 
@@ -376,23 +403,6 @@ float TAMPERAudioProcessor::hardClipData(float sample)
     if(std::abs(sample) > 1.0)
     {
         sample *= 1.0 / std::abs(sample);
-    }
-    return sample;
-}
-
-// tube function (postive values will hardclip, negative values will softclip)
-float TAMPERAudioProcessor::tubeData(float sample)
-{
-    sample *= rawInput * 1.6;
-    
-    if (sample < 0.0)
-    {
-        sample = piDivisor * std::atan(sample);
-    }
-    else if (std::abs(sample) > 1.0)
-    {
-        // if true then this will output 1 (or -1)
-        sample = hardClipData(sample);
     }
     sample = piDivisor * std::atan(sample);
     return sample;
@@ -421,8 +431,28 @@ float TAMPERAudioProcessor::saturationData(float sample)
     {
         sample = -0.8;
     }
+    sample = piDivisor * std::atan(sample);
     return sample;
 }
+
+// tube function (negative values will softclip)
+float TAMPERAudioProcessor::tubeData(float sample)
+{
+    sample *= rawInput * 1.6;
+    
+    if (sample < 0.0)
+    {
+        sample = piDivisor * std::atan(sample);
+    }
+    else if (std::abs(sample) > 1.0)
+    {
+        // if true then this will output 1 (or -1)
+        sample *= 1.0 / std::abs(sample);
+    }
+    sample = piDivisor * std::atan(sample);
+    return sample;
+}
+
 
 void TAMPERAudioProcessor::irSelection(int simType)
 {

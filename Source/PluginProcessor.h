@@ -70,8 +70,9 @@ private:
     {
         kSoft,
         KHard,
-        KTube,
-        KSat
+        KSat,
+        KTube
+        
     };
     
     //Distortion models selection class instantiation
@@ -109,8 +110,12 @@ private:
     juce::dsp::DryWetMixer<float> mainMix;
     float mainMixValue { 1.0 };
     
+    //dsp limiter
+    juce::dsp::Limiter<float> limiterModule;
+    
     //Output
     juce::dsp::Gain<float> outputModule;
+    bool limiterOn { false };
     
     //Distortion Process
     void processDistortion(juce::dsp::AudioBlock<float> &block);
