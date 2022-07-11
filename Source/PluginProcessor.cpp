@@ -27,9 +27,9 @@ TAMPERAudioProcessor::TAMPERAudioProcessor()
     treeState.addParameterListener("drive", this);
     treeState.addParameterListener("model", this);
     treeState.addParameterListener("low pass", this);
-    treeState.addParameterListener("real room", this);
-    treeState.addParameterListener("room type", this);
-    treeState.addParameterListener("real room mix", this);
+    treeState.addParameterListener("amp sim", this);
+    treeState.addParameterListener("ampsim type", this);
+    treeState.addParameterListener("amp sim mix", this);
     treeState.addParameterListener("main Mix", this);
     treeState.addParameterListener("phase", this);
     treeState.addParameterListener("out", this);
@@ -42,9 +42,9 @@ TAMPERAudioProcessor::~TAMPERAudioProcessor()
     treeState.removeParameterListener("drive", this);
     treeState.removeParameterListener("model", this);
     treeState.removeParameterListener("low pass", this);
-    treeState.removeParameterListener("real room", this);
-    treeState.removeParameterListener("room type", this);
-    treeState.removeParameterListener("real room mix", this);
+    treeState.removeParameterListener("amp sim", this);
+    treeState.removeParameterListener("ampsim type", this);
+    treeState.removeParameterListener("amp sim mix", this);
     treeState.removeParameterListener("main Mix", this);
     treeState.removeParameterListener("phase", this);
     treeState.removeParameterListener("out", this);
@@ -55,7 +55,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout TAMPERAudioProcessor::create
     std::vector <std::unique_ptr<juce::RangedAudioParameter>> params;
     
     juce::StringArray disModels = { "Soft", "Hard", "Tube", "Saturation" };
-    juce::StringArray roomSelector = { "A", "B", "C", "D", "E", "F" };
+    juce::StringArray ampSimSelector = { "Amp 1 Ribbon", "Amp 1 57", "Amp 2 Cond", "Amp 3 Ribbon", "Amp 4 MD441", "Amp 4 Bright" };
     
     params.reserve(11);
     
@@ -64,9 +64,9 @@ juce::AudioProcessorValueTreeState::ParameterLayout TAMPERAudioProcessor::create
     auto pDrive = std::make_unique<juce::AudioParameterFloat>("drive", "Drive", 0.0, 24.0, 0.0);
     auto pModels = std::make_unique<juce::AudioParameterChoice>("model", "Model", disModels, 0);
     auto pLowPass = std::make_unique<juce::AudioParameterFloat>("low pass", "Low Pass", juce::NormalisableRange<float> (10000.0, 20000.0, 1.0, 0.22), 20000.0);
-    auto pConv = std::make_unique<juce::AudioParameterBool>("real room", "Real Room", false);
-    auto pRoomChoice = std::make_unique<juce::AudioParameterChoice>("room type", "Room Type", roomSelector, 0);
-    auto pConvMix = std::make_unique<juce::AudioParameterFloat>("real room mix", "Real Room Amount", 0.0, 1.0, 0.0);
+    auto pConv = std::make_unique<juce::AudioParameterBool>("amp sim", "Amp Sim", false);
+    auto pRoomChoice = std::make_unique<juce::AudioParameterChoice>("ampsim type", "AmpSim Type", ampSimSelector, 0);
+    auto pConvMix = std::make_unique<juce::AudioParameterFloat>("amp sim mix", "Amp Sim Mix", 0.0, 1.0, 0.0);
     auto pMainMix = std::make_unique<juce::AudioParameterFloat>("main Mix", "Main Mix", 0.0, 1.0, 1.0);
     auto pPhase = std::make_unique<juce::AudioParameterBool>("phase", "Phase", false);
     auto pOut = std::make_unique<juce::AudioParameterFloat>("out", "Out", -24.0f, 24.0f, 0.0f);
@@ -117,16 +117,16 @@ void TAMPERAudioProcessor::parameterChanged(const juce::String &parameterID, flo
         lowPassFilter = newValue;
         lowPassFilterPost.setCutoffFrequency(lowPassFilter);
     }
-    if (parameterID == "real room")
+    if (parameterID == "amp sim")
     {
         ConvolveOn = newValue;
     }
-    if (parameterID == "room type")
+    if (parameterID == "ampsim type")
     {
-        roomType = newValue;
+        simType = newValue;
         irSelection(static_cast<int>(newValue));
     }
-    if (parameterID == "real room mix")
+    if (parameterID == "amp sim mix")
     {
         ConvolveMixerValue = newValue;
         ConvolveMix.setWetMixProportion(newValue);
@@ -231,14 +231,14 @@ void TAMPERAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock
     lowPassFilterPost.setCutoffFrequency(treeState.getRawParameterValue("low pass")->load());
     
     //Convolution prep
-    ConvolveOn = *treeState.getRawParameterValue("real room");
+    ConvolveOn = *treeState.getRawParameterValue("amp sim");
     convolution.reset();
     convolution.prepare(spec);
     
-    roomType = treeState.getRawParameterValue("room type")->load();
-    irSelection(roomType);
+    simType = treeState.getRawParameterValue("ampsim type")->load();
+    irSelection(simType);
     
-    ConvolveMixerValue = *treeState.getRawParameterValue("real room mix");
+    ConvolveMixerValue = *treeState.getRawParameterValue("amp sim mix");
     ConvolveMix.prepare(spec);
     ConvolveMix.setWetMixProportion(ConvolveMixerValue);
     
@@ -335,9 +335,7 @@ void TAMPERAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce:
     ConvolveMix.pushDrySamples(inputConv);
     if (ConvolveOn) convolution.process(contextConv);
     ConvolveMix.mixWetSamples(outputConv);
-    
-//    if (ConvolveOn) convolution.process(contextMain);
-    
+        
     //pushing wet samples to main mix and output module gain
     mainMix.mixWetSamples(output);
     outputModule.process(juce::dsp::ProcessContextReplacing<float>(block));
@@ -426,9 +424,9 @@ float TAMPERAudioProcessor::saturationData(float sample)
     return sample;
 }
 
-void TAMPERAudioProcessor::irSelection(int roomType)
+void TAMPERAudioProcessor::irSelection(int simType)
 {
-    switch (roomType)
+    switch (simType)
     {
         case 0:
             convolution.loadImpulseResponse(BinaryData::A_Amp_One_Ribbon_aif, BinaryData::A_Amp_One_Ribbon_aifSize, juce::dsp::Convolution::Stereo::yes, juce::dsp::Convolution::Trim::no, 0, juce::dsp::Convolution::Normalise::no);
