@@ -112,7 +112,8 @@ void TAMPERAudioProcessor::parameterChanged(const juce::String &parameterID, flo
     if (parameterID == "drive")
     {
         dBInput = newValue;
-        rawInput = juce::Decibels::decibelsToGain(dBInput);
+        rawInput.setTargetValue(juce::Decibels::decibelsToGain(dBInput));
+//        rawInput = juce::Decibels::decibelsToGain(dBInput);
     }
     if (parameterID == "model")
     {
@@ -241,7 +242,10 @@ void TAMPERAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock
     highPassFilterPre.setType(juce::dsp::LinkwitzRileyFilterType::highpass);
     highPassFilterPre.setCutoffFrequency(treeState.getRawParameterValue("high pass")->load());
     
-    rawInput = juce::Decibels::decibelsToGain(static_cast<float>(*treeState.getRawParameterValue("drive")));
+    //drive prep
+    rawInput.reset(sampleRate, 0.1f);
+    rawInput.setCurrentAndTargetValue(juce::Decibels::decibelsToGain(static_cast<float>(*treeState.getRawParameterValue("drive"))));
+//    rawInput = juce::Decibels::decibelsToGain(static_cast<float>(*treeState.getRawParameterValue("drive")));
     disModel = static_cast<DisModels>(treeState.getRawParameterValue("model")->load());
     
     lowPassFilterPost.prepare(spec);
@@ -390,7 +394,7 @@ void TAMPERAudioProcessor::processDistortion(juce::dsp::AudioBlock<float> &block
 // softclip function (rounded)
 float TAMPERAudioProcessor::softClipData(float sample)
 {
-    sample *= rawInput * 1.6;
+    sample *= rawInput.getNextValue() * 1.6;
     sample = piDivisor * std::atan(sample);
     return piDivisor * std::atan(sample);
 }
@@ -398,7 +402,7 @@ float TAMPERAudioProcessor::softClipData(float sample)
 // hardclip function (any sample above 1 or -1 will be squared)
 float TAMPERAudioProcessor::hardClipData(float sample)
 {
-    sample *= rawInput;
+    sample *= rawInput.getNextValue();
     
     if(std::abs(sample) > 1.0)
     {
@@ -411,7 +415,7 @@ float TAMPERAudioProcessor::hardClipData(float sample)
 // saturation function
 float TAMPERAudioProcessor::saturationData(float sample)
 {
-    sample *= rawInput;
+    sample *= rawInput.getNextValue();
     if (sample < thresh)
     {
         sample = sample;
@@ -438,7 +442,7 @@ float TAMPERAudioProcessor::saturationData(float sample)
 // tube function (negative values will softclip)
 float TAMPERAudioProcessor::tubeData(float sample)
 {
-    sample *= rawInput * 1.6;
+    sample *= rawInput.getNextValue() * 1.6;
     
     if (sample < 0.0)
     {

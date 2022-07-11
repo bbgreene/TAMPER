@@ -63,7 +63,7 @@ private:
     
     //Drive variables
     float dBInput { 0.0 };
-    float rawInput { 1.0 };
+    juce::LinearSmoothedValue<float> rawInput { 1.0f };
     
     //Distortion models selection class
     enum class DisModels
