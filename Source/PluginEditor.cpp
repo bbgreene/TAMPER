@@ -28,11 +28,10 @@ TAMPERAudioProcessorEditor::TAMPERAudioProcessorEditor (TAMPERAudioProcessor& p)
     limiterOn.setClickingTogglesState(true);
     addAndMakeVisible(limiterOn);
     
-    cabMix.setDialStyle(bbg_gui::bbg_Dial::DialStyle::kDialModernStyle);
-    addAndMakeVisible(cabMix);
     cabOn.setClickingTogglesState(true);
     addAndMakeVisible(cabOn);
-    
+    cabMix.setDialStyle(bbg_gui::bbg_Dial::DialStyle::kDialModernStyle);
+    addAndMakeVisible(cabMix);
     cabType.setText("A Ribbon");
     cabType.addItem("A Ribbon", 1);
     cabType.addItem("A Dyn", 2);
@@ -42,6 +41,22 @@ TAMPERAudioProcessorEditor::TAMPERAudioProcessorEditor (TAMPERAudioProcessor& p)
     cabType.addItem("D Bass 2", 6);
     addAndMakeVisible(cabType);
     
+    hiPass.setDialStyle(bbg_gui::bbg_Dial::DialStyle::kDialModernStyle);
+    addAndMakeVisible(hiPass);
+    loPass.setDialStyle(bbg_gui::bbg_Dial::DialStyle::kDialModernStyle);
+    addAndMakeVisible(loPass);
+    oS.setClickingTogglesState(true);
+    addAndMakeVisible(oS);
+    
+    drive.setDialStyle(bbg_gui::bbg_Dial::DialStyle::kDialDotModernStyle);
+    addAndMakeVisible(drive);
+    modelType.setText("Soft Clip");
+    modelType.addItem("Soft Clip", 1);
+    modelType.addItem("Hard Clip", 2);
+    modelType.addItem("Tube Saturation", 3);
+    modelType.addItem("Tube Broken", 4);
+    addAndMakeVisible(modelType);
+    
     //DIAL LABEL ATTACHMENTS
     outLabel.attachToComponent(&out, false);
     mixLabel.attachToComponent(&mix, false);
@@ -49,6 +64,10 @@ TAMPERAudioProcessorEditor::TAMPERAudioProcessorEditor (TAMPERAudioProcessor& p)
     relLabel.attachToComponent(&rel, false);
     cabMixLabel.attachToComponent(&cabMix, false);
     cabTypeLabel.attachToComponent(&cabType, false);
+//    hiPassLabel.attachToComponent(&hiPass, false);
+//    loPassLabel.attachToComponent(&loPass, false);
+    driveLabel.attachToComponent(&drive, false);
+//    modelTypeLabel.attachToComponent(&modelType, false);
     
     // BORDERS
     modelBorder.setColour(juce::GroupComponent::ColourIds::outlineColourId, juce::Colours::lightgrey);
@@ -140,8 +159,8 @@ void TAMPERAudioProcessorEditor::resized()
     
     auto smallDialSize = getWidth() * 0.1166; //70
     auto smallDialGap = getWidth() * 0.025; //15
-    auto bottomRowY = getHeight() * 0.683966;
     auto middleRowY = getHeight() * 0.383879;
+    auto bottomRowY = getHeight() * 0.683966;
     
     auto phaseSize = getWidth() * 0.0833333;
     auto phaseX = outBorder.getX() + (getWidth() * 0.0417);
@@ -158,6 +177,22 @@ void TAMPERAudioProcessorEditor::resized()
     auto cabTypeX = cabBorder.getX() + (getWidth() * 0.017);
     auto cabTypeY = getHeight() * 0.752512;
     
+    auto oSX = cabBorder.getX() + (getWidth() * -0.169);
+    auto filterDialSize = getWidth() * 0.115;
+    auto hiPassX = modelBorder.getX() * 1.88128;
+    auto loPassX = modelBorder.getX() * 7.26132;
+    auto filtersY = getHeight() * 0.651725;
+    
+    auto driveDialSize = getWidth() * 0.232126;
+    auto driveX = modelBorder.getX() * 2.60254;
+    auto driveY = modelBorder.getY() * 1.91911;
+    
+    auto modelTypeX = modelBorder.getX() * 4.26483;
+    auto ModelTypeY = modelBorder.getY() * 4.8117;
+//    auto ModelTypeWidth = getWidth() * JUCE_LIVE_CONSTANT(1.0);
+//    auto ModelTypeHeight = getHeight() * JUCE_LIVE_CONSTANT(1.0);
+    
+    
     out.setBounds(outBorder.getX() + smallDialGap, bottomRowY, smallDialSize, smallDialSize);
     mix.setBounds(outBorder.getX() + smallDialGap, middleRowY, smallDialSize, smallDialSize);
     phase.setBounds(phaseX, phaseY, phaseSize, phaseSize);
@@ -169,6 +204,14 @@ void TAMPERAudioProcessorEditor::resized()
     cabMix.setBounds(cabBorder.getX() + smallDialGap, middleRowY, smallDialSize, smallDialSize);
     cabOn.setBounds(cabOnX, buttonsY, buttonWidth, buttonHeight);
     cabType.setBounds(cabTypeX, cabTypeY, cabTypeWidth, buttonHeight);
+    
+//    oS.setBounds(oSX, buttonsY, smallDialSize, buttonHeight);
+    hiPass.setBounds(hiPassX, bottomRowY, filterDialSize, filterDialSize);
+    loPass.setBounds(loPassX, bottomRowY, filterDialSize, filterDialSize);
+    drive.setBounds(driveX, driveY, driveDialSize, driveDialSize);
+    modelType.setBounds(modelTypeX, ModelTypeY, cabTypeWidth, buttonHeight);
+    
+    
     
     // big border = 200
     // small borders = 100
