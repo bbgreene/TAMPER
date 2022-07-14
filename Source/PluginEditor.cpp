@@ -13,7 +13,7 @@
 TAMPERAudioProcessorEditor::TAMPERAudioProcessorEditor (TAMPERAudioProcessor& p)
     : AudioProcessorEditor (&p), audioProcessor (p)
 {
-    // DIALS & BUTTONS
+    // DIALS & BUTTONS & MENUS
     out.setDialStyle(bbg_gui::bbg_Dial::DialStyle::kDialModernStyle);
     addAndMakeVisible(out);
     mix.setDialStyle(bbg_gui::bbg_Dial::DialStyle::kDialModernStyle);
@@ -28,11 +28,27 @@ TAMPERAudioProcessorEditor::TAMPERAudioProcessorEditor (TAMPERAudioProcessor& p)
     limiterOn.setClickingTogglesState(true);
     addAndMakeVisible(limiterOn);
     
+    cabMix.setDialStyle(bbg_gui::bbg_Dial::DialStyle::kDialModernStyle);
+    addAndMakeVisible(cabMix);
+    cabOn.setClickingTogglesState(true);
+    addAndMakeVisible(cabOn);
+    
+    cabType.setText("A Ribbon");
+    cabType.addItem("A Ribbon", 1);
+    cabType.addItem("A Dyn", 2);
+    cabType.addItem("B Cond", 3);
+    cabType.addItem("C Ribbon", 4);
+    cabType.addItem("D Bass 1", 5);
+    cabType.addItem("D Bass 2", 6);
+    addAndMakeVisible(cabType);
+    
     //DIAL LABEL ATTACHMENTS
     outLabel.attachToComponent(&out, false);
     mixLabel.attachToComponent(&mix, false);
     thresLabel.attachToComponent(&thres, false);
     relLabel.attachToComponent(&rel, false);
+    cabMixLabel.attachToComponent(&cabMix, false);
+    cabTypeLabel.attachToComponent(&cabType, false);
     
     // BORDERS
     modelBorder.setColour(juce::GroupComponent::ColourIds::outlineColourId, juce::Colours::lightgrey);
@@ -134,7 +150,13 @@ void TAMPERAudioProcessorEditor::resized()
     auto buttonWidth = getWidth() * 0.075;
     auto buttonHeight = getHeight() * 0.0667;
     auto limiterOnX = limiterBorder.getX() + (getWidth() * 0.044);
-    auto limiterOnY = getHeight() * 0.23;
+    auto buttonsY = getHeight() * 0.23;
+    
+    auto cabOnX = cabBorder.getX() + (getWidth() * 0.044);
+    
+    auto cabTypeWidth = getWidth() * 0.1333333; //80
+    auto cabTypeX = cabBorder.getX() + (getWidth() * 0.017);
+    auto cabTypeY = getHeight() * 0.752512;
     
     out.setBounds(outBorder.getX() + smallDialGap, bottomRowY, smallDialSize, smallDialSize);
     mix.setBounds(outBorder.getX() + smallDialGap, middleRowY, smallDialSize, smallDialSize);
@@ -142,7 +164,11 @@ void TAMPERAudioProcessorEditor::resized()
     
     rel.setBounds(limiterBorder.getX() + smallDialGap, bottomRowY, smallDialSize, smallDialSize);
     thres.setBounds(limiterBorder.getX() + smallDialGap, middleRowY, smallDialSize, smallDialSize);
-    limiterOn.setBounds(limiterOnX, limiterOnY, buttonWidth, buttonHeight);
+    limiterOn.setBounds(limiterOnX, buttonsY, buttonWidth, buttonHeight);
+    
+    cabMix.setBounds(cabBorder.getX() + smallDialGap, middleRowY, smallDialSize, smallDialSize);
+    cabOn.setBounds(cabOnX, buttonsY, buttonWidth, buttonHeight);
+    cabType.setBounds(cabTypeX, cabTypeY, cabTypeWidth, buttonHeight);
     
     // big border = 200
     // small borders = 100

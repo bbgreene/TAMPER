@@ -31,14 +31,18 @@ public:
 
 private:
     
-    // DIALS & BUTTONS
+    // DIALS & BUTTONS & MENUS
     bbg_gui::bbg_Dial out { " dB", -24.0, 24.0, 0.1, 0.0, 0.0 };
-    bbg_gui::bbg_Dial mix { " %", 0.0, 1.0, 0.01, 1.0, 0.0 };
+    bbg_gui::bbg_Dial mix { " %", 0.0, 100.0, 0.01, 100.0, 0.0 };
     bbg_gui::bbg_Toggle phase { "Phase" };
     
     bbg_gui::bbg_Dial thres { " dB", -60.0, 0.0, 0.01, 0.0, 0.0 };
     bbg_gui::bbg_Dial rel { " ms", 1.0, 1000.0, 0.01, 100.0, 0.0 };
     bbg_gui::bbg_PushButton limiterOn { "On" };
+    
+    bbg_gui::bbg_PushButton cabOn { "On" };
+    bbg_gui::bbg_Dial cabMix { " %", 0.0, 100.0, 0.01, 100.0, 0.0 };
+    bbg_gui::bbg_Menu cabType;
     
     // BORDERS
     juce::GroupComponent modelBorder;
@@ -47,11 +51,15 @@ private:
     juce::GroupComponent outBorder;
     
     // LABELS
-    bbg_gui::bbg_dialLabel outLabel { "Out" };
+    bbg_gui::bbg_dialLabel outLabel { "Output" };
     bbg_gui::bbg_dialLabel mixLabel { "Mix" };
     
-    bbg_gui::bbg_dialLabel thresLabel { "Thres" };
-    bbg_gui::bbg_dialLabel relLabel { "Rel" };
+    bbg_gui::bbg_dialLabel thresLabel { "Threshold" };
+    bbg_gui::bbg_dialLabel relLabel { "Release" };
+    
+    bbg_gui::bbg_dialLabel cabMixLabel { "Cab Mix" };
+    bbg_gui::bbg_menuLabel cabTypeLabel { "Cab Type" };
+    
     
     bbg_gui::bbg_dialLabel olumay { "Olumay dsp" };
     bbg_gui::bbg_dialLabel tamperTitle { "T A M P E R" };
