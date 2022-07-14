@@ -42,12 +42,12 @@ TAMPERAudioProcessorEditor::TAMPERAudioProcessorEditor (TAMPERAudioProcessor& p)
     // TITLE
     tamperTitle.setFont(juce::Font (30.0f, juce::Font::plain));
     tamperTitle.setJustificationType(juce::Justification::centredLeft);
-    tamperTitle.setColour(juce::Label::textColourId, juce::Colours::darkslategrey);
+    tamperTitle.setColour(juce::Label::textColourId, juce::Colours::lightslategrey.brighter());
     addAndMakeVisible(tamperTitle);
     
     tamperVersion.setFont(juce::Font (16.0f, juce::Font::plain));
     tamperVersion.setJustificationType(juce::Justification::centredLeft);
-    tamperVersion.setColour(juce::Label::textColourId, juce::Colours::navajowhite);
+    tamperVersion.setColour(juce::Label::textColourId, juce::Colours::mintcream);
     addAndMakeVisible(tamperVersion);
     
     olumay.setFont(juce::Font (16.0f, juce::Font::plain));
@@ -71,7 +71,7 @@ TAMPERAudioProcessorEditor::~TAMPERAudioProcessorEditor()
 void TAMPERAudioProcessorEditor::paint (juce::Graphics& g)
 {
     juce::Rectangle<int> background = getLocalBounds();
-    g.setGradientFill(juce::ColourGradient::vertical(juce::Colours::indianred.brighter(), getHeight() - getHeight(), juce::Colours::darkslateblue.brighter(), getHeight()));
+    g.setGradientFill(juce::ColourGradient::vertical(juce::Colours::steelblue, getHeight() - getHeight(), juce::Colours::steelblue.darker(), getHeight()));
     g.fillRect(background);
 }
 
@@ -80,8 +80,8 @@ void TAMPERAudioProcessorEditor::resized()
     auto leftMarginGap = getWidth() * 0.0333;
     auto modelBorderWidth = getWidth() * 0.3333;
     auto smallBorderWidth = getWidth() * 0.1666666666666;
-    auto borderHeight = getHeight() * 0.8333;
-    auto borderY = getHeight() * 0.1167;
+    auto borderHeight = getHeight() *  0.8333;
+    auto borderY = getHeight() * 0.14;
 
     modelBorder.setBounds(leftMarginGap, borderY, modelBorderWidth, borderHeight);
     cabBorder.setBounds(modelBorder.getRight() + leftMarginGap, borderY, smallBorderWidth, borderHeight);
