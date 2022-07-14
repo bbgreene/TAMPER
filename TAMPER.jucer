@@ -19,6 +19,21 @@
             file="IRs/F_Amp_Four_Bass_Bright.aif"/>
     </GROUP>
     <GROUP id="{A7D1C2EB-55F8-7A7F-B872-84A63BD66B08}" name="Source">
+      <GROUP id="{372AF550-9B68-14B5-DF45-59636484F5D3}" name="bbg_gui">
+        <FILE id="b5mlZS" name="CustomColours.h" compile="0" resource="0" file="Source/bbg_gui/CustomColours.h"/>
+        <FILE id="sRSVpH" name="Dial.cpp" compile="1" resource="0" file="Source/bbg_gui/Dial.cpp"/>
+        <FILE id="AOFwmH" name="Dial.h" compile="0" resource="0" file="Source/bbg_gui/Dial.h"/>
+        <FILE id="FDmjYO" name="Label.cpp" compile="1" resource="0" file="Source/bbg_gui/Label.cpp"/>
+        <FILE id="eOHWSh" name="Label.h" compile="0" resource="0" file="Source/bbg_gui/Label.h"/>
+        <FILE id="upDRHN" name="Menu.cpp" compile="1" resource="0" file="Source/bbg_gui/Menu.cpp"/>
+        <FILE id="zLrV5w" name="Menu.h" compile="0" resource="0" file="Source/bbg_gui/Menu.h"/>
+        <FILE id="ArTZtM" name="PushButton.cpp" compile="1" resource="0" file="Source/bbg_gui/PushButton.cpp"/>
+        <FILE id="wzTTla" name="PushButton.h" compile="0" resource="0" file="Source/bbg_gui/PushButton.h"/>
+        <FILE id="A6AINH" name="StyleSheet.cpp" compile="1" resource="0" file="Source/bbg_gui/StyleSheet.cpp"/>
+        <FILE id="VknrKR" name="StyleSheet.h" compile="0" resource="0" file="Source/bbg_gui/StyleSheet.h"/>
+        <FILE id="dUfuXG" name="Toggle.cpp" compile="1" resource="0" file="Source/bbg_gui/Toggle.cpp"/>
+        <FILE id="m9Ar39" name="Toggle.h" compile="0" resource="0" file="Source/bbg_gui/Toggle.h"/>
+      </GROUP>
       <FILE id="B7vCak" name="PluginProcessor.cpp" compile="1" resource="0"
             file="Source/PluginProcessor.cpp"/>
       <FILE id="PVDW6H" name="PluginProcessor.h" compile="0" resource="0"

@@ -491,8 +491,8 @@ bool TAMPERAudioProcessor::hasEditor() const
 
 juce::AudioProcessorEditor* TAMPERAudioProcessor::createEditor()
 {
-//    return new TAMPERAudioProcessorEditor (*this);
-    return new juce::GenericAudioProcessorEditor (*this);
+    return new TAMPERAudioProcessorEditor (*this);
+//    return new juce::GenericAudioProcessorEditor (*this);
 }
 
 //==============================================================================
