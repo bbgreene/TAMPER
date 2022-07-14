@@ -13,8 +13,13 @@
 TAMPERAudioProcessorEditor::TAMPERAudioProcessorEditor (TAMPERAudioProcessor& p)
     : AudioProcessorEditor (&p), audioProcessor (p)
 {
-    // BORDERS
+    // DIALS
+    out.setDialStyle(bbg_gui::bbg_Dial::DialStyle::kDialModernStyle);
+    addAndMakeVisible(out);
+    mix.setDialStyle(bbg_gui::bbg_Dial::DialStyle::kDialModernStyle);
+    addAndMakeVisible(mix);
     
+    // BORDERS
     modelBorder.setColour(juce::GroupComponent::ColourIds::outlineColourId, juce::Colours::lightgrey);
     modelBorder.setColour(juce::GroupComponent::ColourIds::textColourId, juce::Colours::whitesmoke);
     modelBorder.setTextLabelPosition(juce::Justification::centred);
@@ -98,10 +103,17 @@ void TAMPERAudioProcessorEditor::resized()
     auto versionHeight = getHeight() * 0.5;
     auto olumayX = getWidth() * 0.81;
     
-    
     tamperTitle.setBounds(tamperTitleX, tamperTitleY, tamperTitleWidth, tamperTitleHeight);
     tamperVersion.setBounds(versionX, versionY, versionWidth, versionHeight);
     olumay.setBounds(olumayX, versionY, versionWidth, versionHeight);
+    
+    auto smallDialSize = getWidth() * 0.13333333333;
+    auto smallDialGap = getWidth() * 0.0166666666666;
+    auto bottomRowY = getHeight() * 0.683966;
+    auto middleRowY = getHeight() * 0.383879;
+    
+    out.setBounds(outBorder.getX() + smallDialGap, bottomRowY, smallDialSize, smallDialSize);
+    mix.setBounds(outBorder.getX() + smallDialGap, middleRowY, smallDialSize, smallDialSize);
     
     // big border = 200
     // small borders = 100

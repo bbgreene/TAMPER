@@ -31,6 +31,10 @@ public:
 
 private:
     
+    // DIALS
+    bbg_gui::bbg_Dial out { " dB", -24.0, 24.0, 0.1, 0.0, 0.0 };
+    bbg_gui::bbg_Dial mix { " %", 0.0, 1.0, 0.01, 1.0, 0.0 };
+    
     // BORDERS
     juce::GroupComponent modelBorder;
     juce::GroupComponent cabBorder;
