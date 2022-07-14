@@ -183,12 +183,12 @@ void TAMPERAudioProcessorEditor::resized()
     auto loPassX = modelBorder.getX() * 7.26132;
     auto filtersY = getHeight() * 0.651725;
     
-    auto driveDialSize = getWidth() * 0.232126;
-    auto driveX = modelBorder.getX() * 2.60254;
-    auto driveY = modelBorder.getY() * 1.91911;
+    auto driveDialSize = getWidth() * 0.21;
+    auto driveX = modelBorder.getX() * 2.85857;
+    auto driveY = modelBorder.getY() * 1.82178;
     
-    auto modelTypeX = modelBorder.getX() * 4.26483;
-    auto ModelTypeY = modelBorder.getY() * 4.8117;
+    auto modelTypeX = modelBorder.getX() * 4.1;
+    auto ModelTypeY = modelBorder.getY() * 4.4;
 //    auto ModelTypeWidth = getWidth() * JUCE_LIVE_CONSTANT(1.0);
 //    auto ModelTypeHeight = getHeight() * JUCE_LIVE_CONSTANT(1.0);
     
