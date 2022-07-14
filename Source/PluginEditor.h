@@ -31,9 +31,14 @@ public:
 
 private:
     
-    // DIALS
+    // DIALS & BUTTONS
     bbg_gui::bbg_Dial out { " dB", -24.0, 24.0, 0.1, 0.0, 0.0 };
     bbg_gui::bbg_Dial mix { " %", 0.0, 1.0, 0.01, 1.0, 0.0 };
+    bbg_gui::bbg_Toggle phase { "Phase" };
+    
+    bbg_gui::bbg_Dial thres { " dB", -60.0, 0.0, 0.01, 0.0, 0.0 };
+    bbg_gui::bbg_Dial rel { " ms", 1.0, 1000.0, 0.01, 100.0, 0.0 };
+    bbg_gui::bbg_PushButton limiterOn { "On" };
     
     // BORDERS
     juce::GroupComponent modelBorder;
@@ -42,6 +47,12 @@ private:
     juce::GroupComponent outBorder;
     
     // LABELS
+    bbg_gui::bbg_dialLabel outLabel { "Out" };
+    bbg_gui::bbg_dialLabel mixLabel { "Mix" };
+    
+    bbg_gui::bbg_dialLabel thresLabel { "Thres" };
+    bbg_gui::bbg_dialLabel relLabel { "Rel" };
+    
     bbg_gui::bbg_dialLabel olumay { "Olumay dsp" };
     bbg_gui::bbg_dialLabel tamperTitle { "T A M P E R" };
     bbg_gui::bbg_dialLabel tamperVersion { "version 1.1" };

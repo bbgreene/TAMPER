@@ -13,11 +13,26 @@
 TAMPERAudioProcessorEditor::TAMPERAudioProcessorEditor (TAMPERAudioProcessor& p)
     : AudioProcessorEditor (&p), audioProcessor (p)
 {
-    // DIALS
+    // DIALS & BUTTONS
     out.setDialStyle(bbg_gui::bbg_Dial::DialStyle::kDialModernStyle);
     addAndMakeVisible(out);
     mix.setDialStyle(bbg_gui::bbg_Dial::DialStyle::kDialModernStyle);
     addAndMakeVisible(mix);
+    phase.setToggleStyle(bbg_gui::bbg_Toggle::ToggleStyle::kPhaseToggle);
+    addAndMakeVisible(phase);
+    
+    thres.setDialStyle(bbg_gui::bbg_Dial::DialStyle::kDialModernStyle);
+    addAndMakeVisible(thres);
+    rel.setDialStyle(bbg_gui::bbg_Dial::DialStyle::kDialModernStyle);
+    addAndMakeVisible(rel);
+    limiterOn.setClickingTogglesState(true);
+    addAndMakeVisible(limiterOn);
+    
+    //DIAL LABEL ATTACHMENTS
+    outLabel.attachToComponent(&out, false);
+    mixLabel.attachToComponent(&mix, false);
+    thresLabel.attachToComponent(&thres, false);
+    relLabel.attachToComponent(&rel, false);
     
     // BORDERS
     modelBorder.setColour(juce::GroupComponent::ColourIds::outlineColourId, juce::Colours::lightgrey);
@@ -107,13 +122,27 @@ void TAMPERAudioProcessorEditor::resized()
     tamperVersion.setBounds(versionX, versionY, versionWidth, versionHeight);
     olumay.setBounds(olumayX, versionY, versionWidth, versionHeight);
     
-    auto smallDialSize = getWidth() * 0.13333333333;
-    auto smallDialGap = getWidth() * 0.0166666666666;
+    auto smallDialSize = getWidth() * 0.1166; //70
+    auto smallDialGap = getWidth() * 0.025; //15
     auto bottomRowY = getHeight() * 0.683966;
     auto middleRowY = getHeight() * 0.383879;
     
+    auto phaseSize = getWidth() * 0.0833333;
+    auto phaseX = outBorder.getX() + (getWidth() * 0.0417);
+    auto phaseY = getHeight() * 0.193093;
+    
+    auto buttonWidth = getWidth() * 0.075;
+    auto buttonHeight = getHeight() * 0.0667;
+    auto limiterOnX = limiterBorder.getX() + (getWidth() * 0.044);
+    auto limiterOnY = getHeight() * 0.23;
+    
     out.setBounds(outBorder.getX() + smallDialGap, bottomRowY, smallDialSize, smallDialSize);
     mix.setBounds(outBorder.getX() + smallDialGap, middleRowY, smallDialSize, smallDialSize);
+    phase.setBounds(phaseX, phaseY, phaseSize, phaseSize);
+    
+    rel.setBounds(limiterBorder.getX() + smallDialGap, bottomRowY, smallDialSize, smallDialSize);
+    thres.setBounds(limiterBorder.getX() + smallDialGap, middleRowY, smallDialSize, smallDialSize);
+    limiterOn.setBounds(limiterOnX, limiterOnY, buttonWidth, buttonHeight);
     
     // big border = 200
     // small borders = 100
