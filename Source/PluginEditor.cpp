@@ -110,7 +110,7 @@ TAMPERAudioProcessorEditor::TAMPERAudioProcessorEditor (TAMPERAudioProcessor& p)
     
     olumay.setFont(juce::Font (16.0f, juce::Font::plain));
     olumay.setJustificationType(juce::Justification::centredLeft);
-    olumay.setColour(juce::Label::textColourId, juce::Colours::navajowhite);
+    olumay.setColour(juce::Label::textColourId, juce::Colours::black);
     addAndMakeVisible(olumay);
     
     // RESIZING
@@ -136,7 +136,7 @@ void TAMPERAudioProcessorEditor::paint (juce::Graphics& g)
     auto lineX = getWidth() * 0.197;
     auto lineYone = getHeight() * 0.22;
     auto lineYtwo = getHeight() * 0.92;
-    g.setColour (CustomColours::blackGrey.brighter(0.8));
+    g.setColour (juce::Colours::lightgrey);
     
     juce::Line<float> line (juce::Point<float> (lineX, lineYone),
                             juce::Point<float> (lineX, lineYtwo));
@@ -158,14 +158,14 @@ void TAMPERAudioProcessorEditor::resized()
     outBorder.setBounds(limiterBorder.getRight() + leftMarginGap, borderY, smallBorderWidth, borderHeight);
     
     auto tamperTitleX = leftMarginGap;
-    auto tamperTitleY = getHeight() * -0.0290775;
+    auto tamperTitleY = getHeight() * -0.016;
     auto tamperTitleWidth = getWidth() * 0.284883;
     auto tamperTitleHeight = getHeight() * 0.17;
     auto versionX = getWidth() * 0.284608;
-    auto versionY = getHeight() * -0.190713;
+    auto versionY = getHeight() * -0.18;
     auto versionWidth = getWidth() * 0.169246;
     auto versionHeight = getHeight() * 0.5;
-    auto olumayX = getWidth() * 0.81;
+    auto olumayX = getWidth() * 0.796;
     
     tamperTitle.setBounds(tamperTitleX, tamperTitleY, tamperTitleWidth, tamperTitleHeight);
     tamperVersion.setBounds(versionX, versionY, versionWidth, versionHeight);
