@@ -44,6 +44,7 @@ private:
     bbg_gui::bbg_Dial cabMix { " %", 0.0, 100.0, 0.01, 100.0, 0.0 };
     bbg_gui::bbg_Menu cabType;
     
+    bbg_gui::bbg_PushButton bypassFilters { "Bypass" };
     bbg_gui::bbg_Dial hiPass { " Hz", 20, 2000.0, 1.00, 20.0, 0.0 };
     bbg_gui::bbg_Dial loPass { " Hz", 10000.0, 20000.0, 1.0, 20000.0, 0.0 };
     bbg_gui::bbg_PushButton oS { "Oversample" };
@@ -67,8 +68,8 @@ private:
     bbg_gui::bbg_dialLabel cabMixLabel { "Cab Mix" };
     bbg_gui::bbg_menuLabel cabTypeLabel { "Cab Type" };
     
-    bbg_gui::bbg_dialLabel hiPassLabel { "High Pass" };
-    bbg_gui::bbg_dialLabel loPassLabel { "Low Pass" };
+    bbg_gui::bbg_dialLabel hiPassLabel { "Pre HiPass" };
+    bbg_gui::bbg_dialLabel loPassLabel { "Post LoPass" };
     
     bbg_gui::bbg_dialLabel driveLabel { "Drive" };
     bbg_gui::bbg_menuLabel modelTypeLabel { "Model Type" };

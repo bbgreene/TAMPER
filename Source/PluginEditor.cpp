@@ -41,6 +41,9 @@ TAMPERAudioProcessorEditor::TAMPERAudioProcessorEditor (TAMPERAudioProcessor& p)
     cabType.addItem("D Bass 2", 6);
     addAndMakeVisible(cabType);
     
+    
+    bypassFilters.setClickingTogglesState(true);
+    addAndMakeVisible(bypassFilters);
     hiPass.setDialStyle(bbg_gui::bbg_Dial::DialStyle::kDialModernStyle);
     addAndMakeVisible(hiPass);
     loPass.setDialStyle(bbg_gui::bbg_Dial::DialStyle::kDialModernStyle);
@@ -130,15 +133,15 @@ void TAMPERAudioProcessorEditor::paint (juce::Graphics& g)
     g.fillRect(background);
     
     //Line
-//    auto lineX = (getWidth() / 2) + ((getHeight() / 4) / 2);
-//    auto lineYone = getHeight() * 0.6465;
-//    auto lineYtwo = getHeight() * 0.7112;
-//    g.setColour (CustomColours::blackGrey.brighter(0.8));
-//    
-//    juce::Line<float> line (juce::Point<float> (lineX, lineYone),
-//                            juce::Point<float> (lineX, lineYtwo));
-//
-//     g.drawLine (line, 1.0f);
+    auto lineX = getWidth() * 0.197;
+    auto lineYone = getHeight() * 0.22;
+    auto lineYtwo = getHeight() * 0.92;
+    g.setColour (CustomColours::blackGrey.brighter(0.8));
+    
+    juce::Line<float> line (juce::Point<float> (lineX, lineYone),
+                            juce::Point<float> (lineX, lineYtwo));
+
+     g.drawLine (line, 1.0f);
 }
 
 void TAMPERAudioProcessorEditor::resized()
@@ -187,10 +190,12 @@ void TAMPERAudioProcessorEditor::resized()
     auto cabTypeX = cabBorder.getX() + (getWidth() * 0.017);
     auto cabTypeY = getHeight() * 0.752512;
     
-    auto oSX = cabBorder.getX() * 0.58;
+    auto bypassFiltersX = modelBorder.getX() * 2.5;
     auto filtersX = modelBorder.getX() * 1.80059;
-    auto driveX = modelBorder.getX() * 7.16238;
-    auto modelTypeX = modelBorder.getX() * 6.8623;
+    auto oSX = cabBorder.getX() * 0.57;
+    auto oSWidth = getWidth() * 0.105;
+    auto driveX = modelBorder.getX() * 6.95028;
+    auto modelTypeX = modelBorder.getX() * 6.77943;
 
     out.setBounds(outBorder.getX() + smallDialGap, bottomRowY, smallDialSize, smallDialSize);
     mix.setBounds(outBorder.getX() + smallDialGap, middleRowY, smallDialSize, smallDialSize);
@@ -204,9 +209,10 @@ void TAMPERAudioProcessorEditor::resized()
     cabOn.setBounds(cabOnX, buttonsY, buttonWidth, buttonHeight);
     cabType.setBounds(cabTypeX, cabTypeY, cabTypeWidth, buttonHeight);
     
-    oS.setBounds(oSX, buttonsY, smallDialSize, buttonHeight);
+    bypassFilters.setBounds(bypassFiltersX, buttonsY, buttonWidth, buttonHeight);
     hiPass.setBounds(filtersX, middleRowY, smallDialSize, smallDialSize);
     loPass.setBounds(filtersX, bottomRowY, smallDialSize, smallDialSize);
+    oS.setBounds(oSX, buttonsY, oSWidth, buttonHeight);
     drive.setBounds(driveX, middleRowY, smallDialSize, smallDialSize);
     modelType.setBounds(modelTypeX, cabTypeY, cabTypeWidth, buttonHeight);
     
