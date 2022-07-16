@@ -78,6 +78,24 @@ private:
     bbg_gui::bbg_dialLabel tamperTitle { "T A M P E R" };
     bbg_gui::bbg_dialLabel tamperVersion { "version 1.1" };
     
+    // ATTACHMENTS
+    std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> filterOnOffAttachement;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> hiPassAttachement;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> loPassAttachement;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> oSAttachement;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> driveAttachement;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> modelTypeAttachement;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> cabOnAttachement;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> cabMixAttachement;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> cabTypeAttachement;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> limiterOnAttachement;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> thresAttachement;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> relAttachement;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> phaseAttachement;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> mixAttachement;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> outputAttachement;
+
+    
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
     TAMPERAudioProcessor& audioProcessor;
