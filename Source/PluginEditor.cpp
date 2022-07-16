@@ -57,7 +57,7 @@ TAMPERAudioProcessorEditor::TAMPERAudioProcessorEditor (TAMPERAudioProcessor& p)
     filterOnOffAttachement = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(audioProcessor.treeState, "filtersOnOff", bypassFilters);
     hiPassAttachement = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.treeState, "high pass", hiPass);
     loPassAttachement = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.treeState, "low pass", loPass);
-    oSAttachement = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(audioProcessor.treeState, "oversample", oS);
+    driveOnAttachement = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(audioProcessor.treeState, "driveOn", driveOn);
     modelTypeAttachement = std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(audioProcessor.treeState, "model", modelType);
     driveAttachement = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.treeState, "drive", drive);
     
@@ -69,6 +69,8 @@ TAMPERAudioProcessorEditor::TAMPERAudioProcessorEditor (TAMPERAudioProcessor& p)
     addAndMakeVisible(loPass);
     oS.setClickingTogglesState(true);
     addAndMakeVisible(oS);
+    driveOn.setClickingTogglesState(true);
+    addAndMakeVisible(driveOn);
     drive.setDialStyle(bbg_gui::bbg_Dial::DialStyle::kDialModernStyle);
     addAndMakeVisible(drive);
     modelType.setText("Soft Clip");
@@ -77,6 +79,8 @@ TAMPERAudioProcessorEditor::TAMPERAudioProcessorEditor (TAMPERAudioProcessor& p)
     modelType.addItem("Saturation", 3);
     modelType.addItem("Broken", 4);
     addAndMakeVisible(modelType);
+    
+    oSAttachement = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(audioProcessor.treeState, "oversample", oS);
     
     //DIAL LABEL ATTACHMENTS
     outLabel.attachToComponent(&out, false);
@@ -210,8 +214,9 @@ void TAMPERAudioProcessorEditor::resized()
     
     auto bypassFiltersX = modelBorder.getX() * 2.5;
     auto filtersX = modelBorder.getX() * 1.80059;
-    auto oSX = cabBorder.getX() * 0.57;
-    auto oSWidth = getWidth() * 0.105;
+//    auto oSX = cabBorder.getX() * 0.57;
+//    auto oSWidth = getWidth() * 0.105;
+    auto driveOnX = cabBorder.getX() * 0.61;
     auto driveX = modelBorder.getX() * 6.95028;
     auto modelTypeX = modelBorder.getX() * 6.77943;
 
@@ -230,11 +235,11 @@ void TAMPERAudioProcessorEditor::resized()
     bypassFilters.setBounds(bypassFiltersX, buttonsY, buttonWidth, buttonHeight);
     hiPass.setBounds(filtersX, middleRowY, smallDialSize, smallDialSize);
     loPass.setBounds(filtersX, bottomRowY, smallDialSize, smallDialSize);
-    oS.setBounds(oSX, buttonsY, oSWidth, buttonHeight);
+    driveOn.setBounds(driveOnX, buttonsY, buttonWidth, buttonHeight);
     drive.setBounds(driveX, middleRowY, smallDialSize, smallDialSize);
     modelType.setBounds(modelTypeX, cabTypeY, cabTypeWidth, buttonHeight);
     
-    
+//    oS.setBounds(oSX, buttonsY, oSWidth, buttonHeight);
     
     // big border = 200
     // small borders = 100

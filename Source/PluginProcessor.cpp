@@ -25,6 +25,7 @@ TAMPERAudioProcessor::TAMPERAudioProcessor()
     treeState.addParameterListener("filtersOnOff", this);
     treeState.addParameterListener("oversample", this);
     treeState.addParameterListener("high pass", this);
+    treeState.addParameterListener("driveOn", this);
     treeState.addParameterListener("drive", this);
     treeState.addParameterListener("model", this);
     treeState.addParameterListener("low pass", this);
@@ -44,6 +45,7 @@ TAMPERAudioProcessor::~TAMPERAudioProcessor()
     treeState.removeParameterListener("filtersOnOff", this);
     treeState.removeParameterListener("oversample", this);
     treeState.removeParameterListener("high pass", this);
+    treeState.removeParameterListener("driveOn", this);
     treeState.removeParameterListener("drive", this);
     treeState.removeParameterListener("model", this);
     treeState.removeParameterListener("low pass", this);
@@ -68,8 +70,8 @@ juce::AudioProcessorValueTreeState::ParameterLayout TAMPERAudioProcessor::create
     params.reserve(14);
     
     auto pFiltersToggle= std::make_unique<juce::AudioParameterBool>("filtersOnOff", "FiltersOnOff", true);
-    auto pOSToggle = std::make_unique<juce::AudioParameterBool>("oversample", "Oversample", false);
     auto pHighPass = std::make_unique<juce::AudioParameterFloat>("high pass", "High Pass", juce::NormalisableRange<float> (20.0, 2000.0, 1.0, 0.22), 20.0);
+    auto pDriveOn = std::make_unique<juce::AudioParameterBool>("driveOn", "DriveOn", true);
     auto pDrive = std::make_unique<juce::AudioParameterFloat>("drive", "Drive", 0.0, 24.0, 0.0);
     auto pModels = std::make_unique<juce::AudioParameterChoice>("model", "Model", disModels, 0);
     auto pLowPass = std::make_unique<juce::AudioParameterFloat>("low pass", "Low Pass", juce::NormalisableRange<float> (10000.0, 20000.0, 1.0, 0.22), 20000.0);
@@ -82,10 +84,12 @@ juce::AudioProcessorValueTreeState::ParameterLayout TAMPERAudioProcessor::create
     auto pLimitRel = std::make_unique<juce::AudioParameterFloat>("release", "Release", 1.0, 1000.0, 100.0);
     auto pPhase = std::make_unique<juce::AudioParameterBool>("phase", "Phase", false);
     auto pOut = std::make_unique<juce::AudioParameterFloat>("out", "Out", -24.0f, 24.0f, 0.0f);
+    auto pOSToggle = std::make_unique<juce::AudioParameterBool>("oversample", "Oversample", false);
     
     params.push_back(std::move(pFiltersToggle));
     params.push_back(std::move(pOSToggle));
     params.push_back(std::move(pHighPass));
+    params.push_back(std::move(pDriveOn));
     params.push_back(std::move(pDrive));
     params.push_back(std::move(pModels));
     params.push_back(std::move(pLowPass));
@@ -116,6 +120,10 @@ void TAMPERAudioProcessor::parameterChanged(const juce::String &parameterID, flo
     {
         highPassFilter = newValue;
         highPassFilterPre.setCutoffFrequency(highPassFilter);
+    }
+    if (parameterID == "driveOn")
+    {
+        driveToggle = newValue;
     }
     if (parameterID == "drive")
     {
@@ -253,6 +261,7 @@ void TAMPERAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock
     highPassFilterPre.setCutoffFrequency(treeState.getRawParameterValue("high pass")->load());
     
     //drive prep
+    driveToggle = *treeState.getRawParameterValue("driveOn");
     rawInput.reset(sampleRate, 0.1f);
     rawInput.setCurrentAndTargetValue(juce::Decibels::decibelsToGain(static_cast<float>(*treeState.getRawParameterValue("drive"))));
     disModel = static_cast<DisModels>(treeState.getRawParameterValue("model")->load());
@@ -353,7 +362,7 @@ void TAMPERAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce:
     {
         if(filterToggle) { highPassFilterPre.process(juce::dsp::ProcessContextReplacing<float>(block)); }
         upSampledBlock = overSamplingModule.processSamplesUp(block);
-        processDistortion(upSampledBlock);
+        if(driveToggle) { processDistortion(upSampledBlock); }
         overSamplingModule.processSamplesDown(block);
         if(filterToggle) { lowPassFilterPost.process(juce::dsp::ProcessContextReplacing<float>(block)); }
     }
@@ -362,7 +371,7 @@ void TAMPERAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce:
     else
     {
         if(filterToggle) { highPassFilterPre.process(juce::dsp::ProcessContextReplacing<float>(block)); }
-        processDistortion(block);
+        if(driveToggle) { processDistortion(block); }
         if(filterToggle) { lowPassFilterPost.process(juce::dsp::ProcessContextReplacing<float>(block)); }
     }
     

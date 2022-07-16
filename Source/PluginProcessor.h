@@ -62,6 +62,7 @@ private:
     juce::dsp::Oversampling<float> overSamplingModule;
     
     //Drive variables
+    bool driveToggle { true };
     float dBInput { 0.0 };
     juce::LinearSmoothedValue<float> rawInput { 1.0f };
     

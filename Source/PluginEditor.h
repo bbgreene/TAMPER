@@ -47,10 +47,12 @@ private:
     bbg_gui::bbg_PushButton bypassFilters { "On" };
     bbg_gui::bbg_Dial hiPass { " Hz", 20, 2000.0, 1.00, 20.0, 0.0 };
     bbg_gui::bbg_Dial loPass { " Hz", 10000.0, 20000.0, 1.0, 20000.0, 0.0 };
-    bbg_gui::bbg_PushButton oS { "Oversample" };
-    
+
+    bbg_gui::bbg_PushButton driveOn { "On" };
     bbg_gui::bbg_Dial drive { " dB", 0.0, 24.0, 0.01, 0.0, 0.0 };
     bbg_gui::bbg_Menu modelType;
+    
+    bbg_gui::bbg_PushButton oS { "Oversample" };
     
     // BORDERS
     juce::GroupComponent modelBorder;
@@ -82,7 +84,7 @@ private:
     std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> filterOnOffAttachement;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> hiPassAttachement;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> loPassAttachement;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> oSAttachement;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> driveOnAttachement;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> driveAttachement;
     std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> modelTypeAttachement;
     std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> cabOnAttachement;
@@ -94,6 +96,7 @@ private:
     std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> phaseAttachement;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> mixAttachement;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> outputAttachement;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> oSAttachement;
 
     
     // This reference is provided as a quick way for your editor to
