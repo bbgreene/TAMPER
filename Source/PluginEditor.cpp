@@ -122,17 +122,17 @@ TAMPERAudioProcessorEditor::TAMPERAudioProcessorEditor (TAMPERAudioProcessor& p)
     // TITLE
     tamperTitle.setFont(juce::Font (30.0f, juce::Font::plain));
     tamperTitle.setJustificationType(juce::Justification::centredLeft);
-    tamperTitle.setColour(juce::Label::textColourId, juce::Colours::lightslategrey.brighter());
+    tamperTitle.setColour(juce::Label::textColourId, juce::Colours::mintcream);
     addAndMakeVisible(tamperTitle);
     
     tamperVersion.setFont(juce::Font (16.0f, juce::Font::plain));
     tamperVersion.setJustificationType(juce::Justification::centredLeft);
-    tamperVersion.setColour(juce::Label::textColourId, juce::Colours::mintcream);
+    tamperVersion.setColour(juce::Label::textColourId, juce::Colours::lightslategrey.brighter());
     addAndMakeVisible(tamperVersion);
     
     olumay.setFont(juce::Font (16.0f, juce::Font::plain));
     olumay.setJustificationType(juce::Justification::centredLeft);
-    olumay.setColour(juce::Label::textColourId, juce::Colours::black);
+    olumay.setColour(juce::Label::textColourId, juce::Colours::coral.brighter());
     addAndMakeVisible(olumay);
     
     // RESIZING
@@ -184,10 +184,10 @@ void TAMPERAudioProcessorEditor::resized()
     auto tamperTitleWidth = getWidth() * 0.284883;
     auto tamperTitleHeight = getHeight() * 0.17;
     auto versionX = getWidth() * 0.284608;
-    auto versionY = getHeight() * -0.18;
+    auto versionY = getHeight() * 0.0383032;
     auto versionWidth = getWidth() * 0.169246;
-    auto versionHeight = getHeight() * 0.5;
-    auto olumayX = getWidth() * 0.796;
+    auto versionHeight = getHeight() * 0.068969;
+    auto olumayX = getWidth() * 0.795;
     
     tamperTitle.setBounds(tamperTitleX, tamperTitleY, tamperTitleWidth, tamperTitleHeight);
     tamperVersion.setBounds(versionX, versionY, versionWidth, versionHeight);
@@ -210,12 +210,10 @@ void TAMPERAudioProcessorEditor::resized()
     auto cabOnX = cabBorder.getX() + (getWidth() * 0.044);
     auto cabTypeWidth = getWidth() * 0.1333333; //80
     auto cabTypeX = cabBorder.getX() + (getWidth() * 0.017);
-    auto cabTypeY = getHeight() * 0.752512;
+    auto cabTypeY = getHeight() * 0.7;
     
     auto bypassFiltersX = modelBorder.getX() * 2.5;
     auto filtersX = modelBorder.getX() * 1.80059;
-//    auto oSX = cabBorder.getX() * 0.57;
-//    auto oSWidth = getWidth() * 0.105;
     auto driveOnX = cabBorder.getX() * 0.61;
     auto driveX = modelBorder.getX() * 6.95028;
     auto modelTypeX = modelBorder.getX() * 6.77943;
@@ -239,7 +237,11 @@ void TAMPERAudioProcessorEditor::resized()
     drive.setBounds(driveX, middleRowY, smallDialSize, smallDialSize);
     modelType.setBounds(modelTypeX, cabTypeY, cabTypeWidth, buttonHeight);
     
-//    oS.setBounds(oSX, buttonsY, oSWidth, buttonHeight);
+//    auto oSX = getWidth() * JUCE_LIVE_CONSTANT(0.1);
+    auto oSY = getHeight() * 0.801159;
+//    auto oSWidth = getWidth() * 0.105;
+    
+    oS.setBounds(modelTypeX, oSY, cabTypeWidth, buttonHeight);
     
     // big border = 200
     // small borders = 100
