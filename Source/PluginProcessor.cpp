@@ -384,8 +384,8 @@ void TAMPERAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce:
     ConvolveMix.mixWetSamples(outputConv);
         
     //pushing wet samples to main mix and output module gain
+    if (limiterOn) { limiterModule.process(juce::dsp::ProcessContextReplacing<float>(block)); }
     mainMix.mixWetSamples(output);
-    if (limiterOn) limiterModule.process(juce::dsp::ProcessContextReplacing<float>(block));
     outputModule.process(juce::dsp::ProcessContextReplacing<float>(block));
 }
 
