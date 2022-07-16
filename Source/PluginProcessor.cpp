@@ -87,20 +87,20 @@ juce::AudioProcessorValueTreeState::ParameterLayout TAMPERAudioProcessor::create
     auto pOSToggle = std::make_unique<juce::AudioParameterBool>("oversample", "Oversample", false);
     
     params.push_back(std::move(pFiltersToggle));
-    params.push_back(std::move(pOSToggle));
     params.push_back(std::move(pHighPass));
+    params.push_back(std::move(pLowPass));
     params.push_back(std::move(pDriveOn));
     params.push_back(std::move(pDrive));
     params.push_back(std::move(pModels));
-    params.push_back(std::move(pLowPass));
+    params.push_back(std::move(pOSToggle));
     params.push_back(std::move(pConv));
-    params.push_back(std::move(pSimChoice));
     params.push_back(std::move(pConvMix));
-    params.push_back(std::move(pMainMix));
+    params.push_back(std::move(pSimChoice));
     params.push_back(std::move(pLimitOn));
     params.push_back(std::move(pLimitThres));
     params.push_back(std::move(pLimitRel));
     params.push_back(std::move(pPhase));
+    params.push_back(std::move(pMainMix));
     params.push_back(std::move(pOut));
     
     return { params.begin(), params.end() };
