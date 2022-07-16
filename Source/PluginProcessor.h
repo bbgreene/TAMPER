@@ -89,6 +89,7 @@ private:
     float thresh = 0.1;
     
     //filter variables
+    bool filterToggle { false };
     float highPassFilter { 20.0 };
     float lowPassFilter { 1000.0 };
     

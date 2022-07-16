@@ -22,6 +22,7 @@ TAMPERAudioProcessor::TAMPERAudioProcessor()
                        ), treeState(*this, nullptr, "PARAMETERS", createParameterLayout()), overSamplingModule(2, 2, juce::dsp::Oversampling<float>::filterHalfBandPolyphaseIIR)
 #endif
 {
+    treeState.addParameterListener("filtersOnOff", this);
     treeState.addParameterListener("oversample", this);
     treeState.addParameterListener("high pass", this);
     treeState.addParameterListener("drive", this);
@@ -40,6 +41,7 @@ TAMPERAudioProcessor::TAMPERAudioProcessor()
 
 TAMPERAudioProcessor::~TAMPERAudioProcessor()
 {
+    treeState.removeParameterListener("filtersOnOff", this);
     treeState.removeParameterListener("oversample", this);
     treeState.removeParameterListener("high pass", this);
     treeState.removeParameterListener("drive", this);
@@ -65,6 +67,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout TAMPERAudioProcessor::create
     
     params.reserve(14);
     
+    auto pFiltersToggle= std::make_unique<juce::AudioParameterBool>("filtersOnOff", "FiltersOnOff", false);
     auto pOSToggle = std::make_unique<juce::AudioParameterBool>("oversample", "Oversample", false);
     auto pHighPass = std::make_unique<juce::AudioParameterFloat>("high pass", "High Pass", juce::NormalisableRange<float> (20.0, 2000.0, 1.0, 0.22), 20.0);
     auto pDrive = std::make_unique<juce::AudioParameterFloat>("drive", "Drive", 0.0, 24.0, 0.0);
@@ -80,6 +83,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout TAMPERAudioProcessor::create
     auto pPhase = std::make_unique<juce::AudioParameterBool>("phase", "Phase", false);
     auto pOut = std::make_unique<juce::AudioParameterFloat>("out", "Out", -24.0f, 24.0f, 0.0f);
     
+    params.push_back(std::move(pFiltersToggle));
     params.push_back(std::move(pOSToggle));
     params.push_back(std::move(pHighPass));
     params.push_back(std::move(pDrive));
@@ -103,6 +107,10 @@ void TAMPERAudioProcessor::parameterChanged(const juce::String &parameterID, flo
     if (parameterID == "oversample")
     {
         osToggle = newValue;
+    }
+    if (parameterID == "filtersOnOff")
+    {
+        filterToggle = newValue;
     }
     if (parameterID == "high pass")
     {
@@ -238,6 +246,8 @@ void TAMPERAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock
     overSamplingModule.reset();
     
     //highpass, dist model and lowpass prep
+    filterToggle = *treeState.getRawParameterValue("filtersOnOff");
+    
     highPassFilterPre.prepare(spec);
     highPassFilterPre.setType(juce::dsp::LinkwitzRileyFilterType::highpass);
     highPassFilterPre.setCutoffFrequency(treeState.getRawParameterValue("high pass")->load());
@@ -245,7 +255,6 @@ void TAMPERAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock
     //drive prep
     rawInput.reset(sampleRate, 0.1f);
     rawInput.setCurrentAndTargetValue(juce::Decibels::decibelsToGain(static_cast<float>(*treeState.getRawParameterValue("drive"))));
-//    rawInput = juce::Decibels::decibelsToGain(static_cast<float>(*treeState.getRawParameterValue("drive")));
     disModel = static_cast<DisModels>(treeState.getRawParameterValue("model")->load());
     
     lowPassFilterPost.prepare(spec);
@@ -342,19 +351,19 @@ void TAMPERAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce:
     //if oversampling on...
     if(osToggle)
     {
-        highPassFilterPre.process(juce::dsp::ProcessContextReplacing<float>(block));
+        if(filterToggle) { highPassFilterPre.process(juce::dsp::ProcessContextReplacing<float>(block)); }
         upSampledBlock = overSamplingModule.processSamplesUp(block);
         processDistortion(upSampledBlock);
         overSamplingModule.processSamplesDown(block);
-        lowPassFilterPost.process(juce::dsp::ProcessContextReplacing<float>(block));
+        if(filterToggle) { lowPassFilterPost.process(juce::dsp::ProcessContextReplacing<float>(block)); }
     }
     
     //if oversampling is off...
     else
     {
-        highPassFilterPre.process(juce::dsp::ProcessContextReplacing<float>(block));
+        if(filterToggle) { highPassFilterPre.process(juce::dsp::ProcessContextReplacing<float>(block)); }
         processDistortion(block);
-        lowPassFilterPost.process(juce::dsp::ProcessContextReplacing<float>(block));
+        if(filterToggle) { lowPassFilterPost.process(juce::dsp::ProcessContextReplacing<float>(block)); }
     }
     
     //Context replacing for convolution
