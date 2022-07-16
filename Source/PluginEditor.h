@@ -44,7 +44,7 @@ private:
     bbg_gui::bbg_Dial cabMix { " %", 0.0, 100.0, 0.01, 100.0, 0.0 };
     bbg_gui::bbg_Menu cabType;
     
-    bbg_gui::bbg_PushButton bypassFilters { "Bypass" };
+    bbg_gui::bbg_PushButton bypassFilters { "On" };
     bbg_gui::bbg_Dial hiPass { " Hz", 20, 2000.0, 1.00, 20.0, 0.0 };
     bbg_gui::bbg_Dial loPass { " Hz", 10000.0, 20000.0, 1.0, 20000.0, 0.0 };
     bbg_gui::bbg_PushButton oS { "Oversample" };

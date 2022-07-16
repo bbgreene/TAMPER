@@ -74,8 +74,8 @@ TAMPERAudioProcessorEditor::TAMPERAudioProcessorEditor (TAMPERAudioProcessor& p)
     modelType.setText("Soft Clip");
     modelType.addItem("Soft Clip", 1);
     modelType.addItem("Hard Clip", 2);
-    modelType.addItem("Tube Saturation", 3);
-    modelType.addItem("Tube Broken", 4);
+    modelType.addItem("Saturation", 3);
+    modelType.addItem("Broken", 4);
     addAndMakeVisible(modelType);
     
     //DIAL LABEL ATTACHMENTS

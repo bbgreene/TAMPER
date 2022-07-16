@@ -89,7 +89,7 @@ private:
     float thresh = 0.1;
     
     //filter variables
-    bool filterToggle { false };
+    bool filterToggle { true };
     float highPassFilter { 20.0 };
     float lowPassFilter { 1000.0 };
     
@@ -103,7 +103,7 @@ private:
     
     //Mixer object instantiaton for convolution
     juce::dsp::DryWetMixer<float> ConvolveMix;
-    float ConvolveMixerValue { 0.0 };
+    float ConvolveMixerValue { 100.0 };
     int simType { 0 };
     void irSelection(int roomType);
     

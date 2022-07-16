@@ -67,7 +67,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout TAMPERAudioProcessor::create
     
     params.reserve(14);
     
-    auto pFiltersToggle= std::make_unique<juce::AudioParameterBool>("filtersOnOff", "FiltersOnOff", false);
+    auto pFiltersToggle= std::make_unique<juce::AudioParameterBool>("filtersOnOff", "FiltersOnOff", true);
     auto pOSToggle = std::make_unique<juce::AudioParameterBool>("oversample", "Oversample", false);
     auto pHighPass = std::make_unique<juce::AudioParameterFloat>("high pass", "High Pass", juce::NormalisableRange<float> (20.0, 2000.0, 1.0, 0.22), 20.0);
     auto pDrive = std::make_unique<juce::AudioParameterFloat>("drive", "Drive", 0.0, 24.0, 0.0);
@@ -75,8 +75,8 @@ juce::AudioProcessorValueTreeState::ParameterLayout TAMPERAudioProcessor::create
     auto pLowPass = std::make_unique<juce::AudioParameterFloat>("low pass", "Low Pass", juce::NormalisableRange<float> (10000.0, 20000.0, 1.0, 0.22), 20000.0);
     auto pConv = std::make_unique<juce::AudioParameterBool>("amp sim", "Amp Sim", true);
     auto pSimChoice = std::make_unique<juce::AudioParameterChoice>("ampsim type", "AmpSim Type", ampSimSelector, 0);
-    auto pConvMix = std::make_unique<juce::AudioParameterFloat>("amp sim mix", "Amp Sim Mix", 0.0, 1.0, 1.0);
-    auto pMainMix = std::make_unique<juce::AudioParameterFloat>("main Mix", "Main Mix", 0.0, 1.0, 1.0);
+    auto pConvMix = std::make_unique<juce::AudioParameterFloat>("amp sim mix", "Amp Sim Mix", 0.0, 100.0, 100.0);
+    auto pMainMix = std::make_unique<juce::AudioParameterFloat>("main Mix", "Main Mix", 0.0, 100.0, 100.0);
     auto pLimitOn = std::make_unique<juce::AudioParameterBool>("limiter", "Limiter", false);
     auto pLimitThres = std::make_unique<juce::AudioParameterFloat>("thres", "Threshold", -60.0, 0.0, 0.0);
     auto pLimitRel = std::make_unique<juce::AudioParameterFloat>("release", "Release", 1.0, 1000.0, 100.0);
@@ -150,7 +150,7 @@ void TAMPERAudioProcessor::parameterChanged(const juce::String &parameterID, flo
     if (parameterID == "amp sim mix")
     {
         ConvolveMixerValue = newValue;
-        ConvolveMix.setWetMixProportion(newValue);
+        ConvolveMix.setWetMixProportion(juce::jmap(newValue, 0.0f, 100.0f, 0.0f, 1.0f));
     }
     if (parameterID == "limiter")
     {
@@ -159,7 +159,7 @@ void TAMPERAudioProcessor::parameterChanged(const juce::String &parameterID, flo
     if (parameterID == "main Mix")
     {
         mainMixValue = newValue;
-        mainMix.setWetMixProportion(newValue);
+        mainMix.setWetMixProportion(juce::jmap(newValue, 0.0f, 100.0f, 0.0f, 1.0f));
     }
     if (parameterID == "phase")
     {
@@ -271,12 +271,12 @@ void TAMPERAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock
     
     ConvolveMixerValue = *treeState.getRawParameterValue("amp sim mix");
     ConvolveMix.prepare(spec);
-    ConvolveMix.setWetMixProportion(ConvolveMixerValue);
+    ConvolveMix.setWetMixProportion(juce::jmap(ConvolveMixerValue, 0.0f, 100.0f, 0.0f, 1.0f));
     
     //Main Mix
     mainMixValue = *treeState.getRawParameterValue("main Mix");
     mainMix.prepare(spec);
-    mainMix.setWetMixProportion(mainMixValue);
+    mainMix.setWetMixProportion(juce::jmap(mainMixValue, 0.0f, 100.0f, 0.0f, 1.0f));
     
     phase = *treeState.getRawParameterValue("phase");
     
