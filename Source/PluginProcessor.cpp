@@ -78,7 +78,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout TAMPERAudioProcessor::create
     auto pConvMix = std::make_unique<juce::AudioParameterFloat>("amp sim mix", "Amp Sim Mix", 0.0, 100.0, 100.0);
     auto pMainMix = std::make_unique<juce::AudioParameterFloat>("main Mix", "Main Mix", 0.0, 100.0, 100.0);
     auto pLimitOn = std::make_unique<juce::AudioParameterBool>("limiter", "Limiter", false);
-    auto pLimitThres = std::make_unique<juce::AudioParameterFloat>("thres", "Threshold", -60.0, 0.0, 0.0);
+    auto pLimitThres = std::make_unique<juce::AudioParameterFloat>("thres", "Threshold", -10.0, 0.0, 0.0);
     auto pLimitRel = std::make_unique<juce::AudioParameterFloat>("release", "Release", 1.0, 1000.0, 100.0);
     auto pPhase = std::make_unique<juce::AudioParameterBool>("phase", "Phase", false);
     auto pOut = std::make_unique<juce::AudioParameterFloat>("out", "Out", -24.0f, 24.0f, 0.0f);

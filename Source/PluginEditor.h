@@ -36,7 +36,7 @@ private:
     bbg_gui::bbg_Dial mix { " %", 0.0, 100.0, 0.01, 100.0, 0.0 };
     bbg_gui::bbg_Toggle phase { "Phase" };
     
-    bbg_gui::bbg_Dial thres { " dB", -60.0, 0.0, 0.01, 0.0, 0.0 };
+    bbg_gui::bbg_Dial thres { " dB", -10.0, 0.0, 0.01, 0.0, 0.0 };
     bbg_gui::bbg_Dial rel { " ms", 1.0, 1000.0, 0.01, 100.0, 0.0 };
     bbg_gui::bbg_PushButton limiterOn { "On" };
     
