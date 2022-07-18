@@ -72,7 +72,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout TAMPERAudioProcessor::create
     auto pFiltersToggle     = std::make_unique<juce::AudioParameterBool>("filtersOnOff", "Filters On", true);
     auto pHighPass          = std::make_unique<juce::AudioParameterFloat>("high pass",
                                                                           "HiPass Freq",
-                                                                          juce::NormalisableRange<float> (20.0, 2000.0, 1.0, 0.4),
+                                                                          juce::NormalisableRange<float> (20.0, 2000.0, 1.0, 0.45),
                                                                           20.0,
                                                                           juce::String(),
                                                                           juce::AudioProcessorParameter::genericParameter,
@@ -92,7 +92,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout TAMPERAudioProcessor::create
     auto pModels            = std::make_unique<juce::AudioParameterChoice>("model", "Model Type", disModels, 0);
     auto pLowPass           = std::make_unique<juce::AudioParameterFloat>("low pass",
                                                                           "LoPass Freq",
-                                                                          juce::NormalisableRange<float> (5000.0, 20000.0, 1.0, 0.22),
+                                                                          juce::NormalisableRange<float> (5000.0, 20000.0, 1.0, 0.45),
                                                                           20000.0,
                                                                           juce::String(),
                                                                           juce::AudioProcessorParameter::genericParameter,
@@ -125,7 +125,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout TAMPERAudioProcessor::create
     
     auto pLimitRel          = std::make_unique<juce::AudioParameterFloat>("release",
                                                                           "Release",
-                                                                          juce::NormalisableRange<float> (1.0, 1000.0, 0.01, 1.0),
+                                                                          juce::NormalisableRange<float> (1.0, 1000.0, 0.01, 0.5),
                                                                           100.0,
                                                                           juce::String(),
                                                                           juce::AudioProcessorParameter::genericParameter,
