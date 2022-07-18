@@ -45,11 +45,11 @@ private:
     bbg_gui::bbg_Menu cabType;
     
     bbg_gui::bbg_PushButton bypassFilters { "On" };
-    bbg_gui::bbg_Dial hiPass { " Hz", 20, 2000.0, 1.00, 20.0, 0.0 };
+    bbg_gui::bbg_Dial hiPass { " Hz", 20, 2000.0, 1.0, 20.0, 0.0 };
     bbg_gui::bbg_Dial loPass { " Hz", 5000.0, 20000.0, 1.0, 20000.0, 0.0 };
 
     bbg_gui::bbg_PushButton driveOn { "On" };
-    bbg_gui::bbg_Dial drive { " dB", 0.0, 24.0, 0.01, 0.0, 0.0 };
+    bbg_gui::bbg_Dial drive { " dB", 0.0, 24.0, 0.1, 0.0, 0.0 };
     bbg_gui::bbg_Menu modelType;
     
     bbg_gui::bbg_PushButton oS { "Oversample" };

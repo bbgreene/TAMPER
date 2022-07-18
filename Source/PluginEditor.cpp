@@ -22,8 +22,10 @@ TAMPERAudioProcessorEditor::TAMPERAudioProcessorEditor (TAMPERAudioProcessor& p)
     phase.setToggleStyle(bbg_gui::bbg_Toggle::ToggleStyle::kPhaseToggle);
     addAndMakeVisible(phase);
     mix.setDialStyle(bbg_gui::bbg_Dial::DialStyle::kDialModernStyle);
+    mix.textFromValueFunction = nullptr;
     addAndMakeVisible(mix);
     out.setDialStyle(bbg_gui::bbg_Dial::DialStyle::kDialModernStyle);
+    out.textFromValueFunction = nullptr;
     addAndMakeVisible(out);
     
     limiterOnAttachement = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(audioProcessor.treeState, "limiter", limiterOn);
@@ -33,8 +35,10 @@ TAMPERAudioProcessorEditor::TAMPERAudioProcessorEditor (TAMPERAudioProcessor& p)
     limiterOn.setClickingTogglesState(true);
     addAndMakeVisible(limiterOn);
     thres.setDialStyle(bbg_gui::bbg_Dial::DialStyle::kDialModernStyle);
+    thres.textFromValueFunction = nullptr;
     addAndMakeVisible(thres);
     rel.setDialStyle(bbg_gui::bbg_Dial::DialStyle::kDialModernStyle);
+    rel.textFromValueFunction = nullptr;
     addAndMakeVisible(rel);
     
     cabOnAttachement = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(audioProcessor.treeState, "amp sim", cabOn);
@@ -44,6 +48,7 @@ TAMPERAudioProcessorEditor::TAMPERAudioProcessorEditor (TAMPERAudioProcessor& p)
     cabOn.setClickingTogglesState(true);
     addAndMakeVisible(cabOn);
     cabMix.setDialStyle(bbg_gui::bbg_Dial::DialStyle::kDialModernStyle);
+    cabMix.textFromValueFunction = nullptr;
     addAndMakeVisible(cabMix);
     cabType.setText("A Ribbon");
     cabType.addItem("A Ribbon", 1);
@@ -72,6 +77,7 @@ TAMPERAudioProcessorEditor::TAMPERAudioProcessorEditor (TAMPERAudioProcessor& p)
     driveOn.setClickingTogglesState(true);
     addAndMakeVisible(driveOn);
     drive.setDialStyle(bbg_gui::bbg_Dial::DialStyle::kDialModernStyle);
+    drive.textFromValueFunction = nullptr;
     addAndMakeVisible(drive);
     modelType.setText("Soft Clip");
     modelType.addItem("Soft Clip", 1);
