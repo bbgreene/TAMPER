@@ -74,7 +74,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout TAMPERAudioProcessor::create
     auto pDriveOn = std::make_unique<juce::AudioParameterBool>("driveOn", "DriveOn", true);
     auto pDrive = std::make_unique<juce::AudioParameterFloat>("drive", "Drive", 0.0, 24.0, 0.0);
     auto pModels = std::make_unique<juce::AudioParameterChoice>("model", "Model", disModels, 0);
-    auto pLowPass = std::make_unique<juce::AudioParameterFloat>("low pass", "Low Pass", juce::NormalisableRange<float> (10000.0, 20000.0, 1.0, 0.22), 20000.0);
+    auto pLowPass = std::make_unique<juce::AudioParameterFloat>("low pass", "Low Pass", juce::NormalisableRange<float> (5000.0, 20000.0, 1.0, 0.22), 20000.0);
     auto pConv = std::make_unique<juce::AudioParameterBool>("amp sim", "Amp Sim", true);
     auto pSimChoice = std::make_unique<juce::AudioParameterChoice>("ampsim type", "AmpSim Type", ampSimSelector, 0);
     auto pConvMix = std::make_unique<juce::AudioParameterFloat>("amp sim mix", "Amp Sim Mix", 0.0, 100.0, 100.0);

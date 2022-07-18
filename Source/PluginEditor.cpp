@@ -208,15 +208,17 @@ void TAMPERAudioProcessorEditor::resized()
     auto buttonsY = getHeight() * 0.23;
     
     auto cabOnX = cabBorder.getX() + (getWidth() * 0.044);
-    auto cabTypeWidth = getWidth() * 0.1333333; //80
-    auto cabTypeX = cabBorder.getX() + (getWidth() * 0.017);
+    
+    auto cabTypeX = cabBorder.getX() + (getWidth() * 0.013);
     auto cabTypeY = getHeight() * 0.7;
+    auto cabTypeWidth = getWidth() * 0.142794;
     
     auto bypassFiltersX = modelBorder.getX() * 2.5;
     auto filtersX = modelBorder.getX() * 1.80059;
     auto driveOnX = cabBorder.getX() * 0.61;
     auto driveX = modelBorder.getX() * 6.95028;
-    auto modelTypeX = modelBorder.getX() * 6.77943;
+    auto modelTypeX = modelBorder.getX() * 6.47;
+    auto modelTypeWidth = getWidth() * 0.149;// 0.1333333; //80
 
     out.setBounds(outBorder.getX() + smallDialGap, bottomRowY, smallDialSize, smallDialSize);
     mix.setBounds(outBorder.getX() + smallDialGap, middleRowY, smallDialSize, smallDialSize);
@@ -235,13 +237,13 @@ void TAMPERAudioProcessorEditor::resized()
     loPass.setBounds(filtersX, bottomRowY, smallDialSize, smallDialSize);
     driveOn.setBounds(driveOnX, buttonsY, buttonWidth, buttonHeight);
     drive.setBounds(driveX, middleRowY, smallDialSize, smallDialSize);
-    modelType.setBounds(modelTypeX, cabTypeY, cabTypeWidth, buttonHeight);
+    modelType.setBounds(modelTypeX, cabTypeY, modelTypeWidth, buttonHeight);
     
-//    auto oSX = getWidth() * JUCE_LIVE_CONSTANT(0.1);
-    auto oSY = getHeight() * 0.801159;
-//    auto oSWidth = getWidth() * 0.105;
+    auto oSX = getWidth() * 0.229;
+    auto oSY = getHeight() * 0.82;
+    auto oSWidth = getWidth() * 0.102191;
     
-    oS.setBounds(modelTypeX, oSY, cabTypeWidth, buttonHeight);
+    oS.setBounds(oSX, oSY, oSWidth, buttonHeight);
     
     // big border = 200
     // small borders = 100
