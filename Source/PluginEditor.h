@@ -32,24 +32,24 @@ public:
 private:
     
     // DIALS & BUTTONS & MENUS
-    bbg_gui::bbg_Dial out { " dB", -24.0, 24.0, 0.1, 0.0, 0.0 };
-    bbg_gui::bbg_Dial mix { " %", 0.0, 100.0, 0.01, 100.0, 0.0 };
+    bbg_gui::bbg_Dial out { "", -24.0, 24.0, 0.1, 0.0, 0.0 };
+    bbg_gui::bbg_Dial mix { "", 0.0, 100.0, 0.01, 100.0, 0.0 };
     bbg_gui::bbg_Toggle phase { "Phase" };
     
-    bbg_gui::bbg_Dial thres { " dB", -10.0, 0.0, 0.01, 0.0, 0.0 };
-    bbg_gui::bbg_Dial rel { " ms", 1.0, 1000.0, 0.01, 100.0, 0.0 };
+    bbg_gui::bbg_Dial thres { "", -10.0, 0.0, 0.01, 0.0, 0.0 };
+    bbg_gui::bbg_Dial rel { "", 1.0, 1000.0, 0.01, 100.0, 0.0 };
     bbg_gui::bbg_PushButton limiterOn { "On" };
     
     bbg_gui::bbg_PushButton cabOn { "On" };
-    bbg_gui::bbg_Dial cabMix { " %", 0.0, 100.0, 0.01, 100.0, 0.0 };
+    bbg_gui::bbg_Dial cabMix { "", 0.0, 100.0, 0.01, 100.0, 0.0 };
     bbg_gui::bbg_Menu cabType;
     
     bbg_gui::bbg_PushButton bypassFilters { "On" };
-    bbg_gui::bbg_Dial hiPass { " Hz", 20, 2000.0, 1.0, 20.0, 0.0 };
-    bbg_gui::bbg_Dial loPass { " Hz", 5000.0, 20000.0, 1.0, 20000.0, 0.0 };
+    bbg_gui::bbg_Dial hiPass { "", 20, 2000.0, 1.0, 20.0, 0.0 };
+    bbg_gui::bbg_Dial loPass { "", 5000.0, 20000.0, 1.0, 20000.0, 0.0 };
 
     bbg_gui::bbg_PushButton driveOn { "On" };
-    bbg_gui::bbg_Dial drive { " dB", 0.0, 24.0, 0.1, 0.0, 0.0 };
+    bbg_gui::bbg_Dial drive { "", 0.0, 24.0, 0.1, 0.0, 0.0 };
     bbg_gui::bbg_Menu modelType;
     
     bbg_gui::bbg_PushButton oS { "Oversample" };
