@@ -69,29 +69,29 @@ juce::AudioProcessorValueTreeState::ParameterLayout TAMPERAudioProcessor::create
     
     params.reserve(14);
     
-    auto pFiltersToggle     = std::make_unique<juce::AudioParameterBool>("filtersOnOff", "FiltersOnOff", true);
+    auto pFiltersToggle     = std::make_unique<juce::AudioParameterBool>("filtersOnOff", "Filters On", true);
     auto pHighPass          = std::make_unique<juce::AudioParameterFloat>("high pass",
-                                                                          "High Pass",
-                                                                          juce::NormalisableRange<float> (20.0, 2000.0, 1.0, 0.22),
+                                                                          "HiPass Freq",
+                                                                          juce::NormalisableRange<float> (20.0, 2000.0, 1.0, 0.4),
                                                                           20.0,
                                                                           juce::String(),
                                                                           juce::AudioProcessorParameter::genericParameter,
                                                                           [](float value, int) {return (value < 1000.0) ? juce::String (value, 0) + " Hz" : juce::String (value / 1000.0f, 2) + " kHz";},
                                                                           [](juce::String text) {return text.dropLastCharacters (3).getFloatValue();});;
     
-    auto pDriveOn           = std::make_unique<juce::AudioParameterBool>("driveOn", "DriveOn", true);
+    auto pDriveOn           = std::make_unique<juce::AudioParameterBool>("driveOn", "Drive On", true);
     auto pDrive             = std::make_unique<juce::AudioParameterFloat>("drive",
                                                                           "Drive",
-                                                                          juce::NormalisableRange<float> (0.0, 24.0, 0.01f, 1.0),
+                                                                          juce::NormalisableRange<float> (0.0, 24.0, 0.01f, 0.7),
                                                                           0.0,
                                                                           juce::String(),
                                                                           juce::AudioProcessorParameter::genericParameter,
                                                                           [](float value, int) {return (value < 10.0f) ? juce::String (value, 2) + " dB": juce::String (value, 1) + " dB";},
                                                                           [](juce::String text) {return text.dropLastCharacters (3).getFloatValue();});
 
-    auto pModels            = std::make_unique<juce::AudioParameterChoice>("model", "Model", disModels, 0);
+    auto pModels            = std::make_unique<juce::AudioParameterChoice>("model", "Model Type", disModels, 0);
     auto pLowPass           = std::make_unique<juce::AudioParameterFloat>("low pass",
-                                                                          "Low Pass",
+                                                                          "LoPass Freq",
                                                                           juce::NormalisableRange<float> (5000.0, 20000.0, 1.0, 0.22),
                                                                           20000.0,
                                                                           juce::String(),
@@ -99,10 +99,10 @@ juce::AudioProcessorValueTreeState::ParameterLayout TAMPERAudioProcessor::create
                                                                           [](float value, int) {return (value < 10000.0) ? juce::String (value / 1000.0f, 2) + " kHz" : juce::String (value / 1000.0f, 1) + " kHz";},
                                                                           [](juce::String text) {return text.dropLastCharacters (3).getFloatValue();});
     
-    auto pConv              = std::make_unique<juce::AudioParameterBool>("amp sim", "Amp Sim", true);
-    auto pSimChoice         = std::make_unique<juce::AudioParameterChoice>("ampsim type", "AmpSim Type", ampSimSelector, 0);
+    auto pConv              = std::make_unique<juce::AudioParameterBool>("amp sim", "Cab Sim On", true);
+    auto pSimChoice         = std::make_unique<juce::AudioParameterChoice>("ampsim type", "Cab Type", ampSimSelector, 0);
     auto pConvMix           = std::make_unique<juce::AudioParameterFloat>("amp sim mix",
-                                                                          "Amp Sim Mix",
+                                                                          "Cab Mix",
                                                                           juce::NormalisableRange<float> (0.0, 100.0, 0.01, 1.0),
                                                                           100.0,
                                                                           juce::String(),
@@ -111,14 +111,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout TAMPERAudioProcessor::create
                                                                           [](juce::String text) {return text.dropLastCharacters (3).getFloatValue();});
     
     
-    auto pMainMix           = std::make_unique<juce::AudioParameterFloat>("main Mix",
-                                                                          "Main Mix",
-                                                                          juce::NormalisableRange<float> (0.0, 100.0, 0.01, 1.0),
-                                                                          100.0,
-                                                                          juce::String(),
-                                                                          juce::AudioProcessorParameter::genericParameter,
-                                                                          [](float value, int) {return (value < 100.0) ? juce::String (value, 1) + " %" : juce::String (value, 0) + " %";},
-                                                                          [](juce::String text) {return text.dropLastCharacters (3).getFloatValue();});
+    
     
     auto pLimitOn           = std::make_unique<juce::AudioParameterBool>("limiter", "Limiter", false);
     auto pLimitThres        = std::make_unique<juce::AudioParameterFloat>("thres",
@@ -133,7 +126,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout TAMPERAudioProcessor::create
     auto pLimitRel          = std::make_unique<juce::AudioParameterFloat>("release",
                                                                           "Release",
                                                                           juce::NormalisableRange<float> (1.0, 1000.0, 0.01, 1.0),
-                                                                          1.0,
+                                                                          100.0,
                                                                           juce::String(),
                                                                           juce::AudioProcessorParameter::genericParameter,
                                                                           [](float value, int) {return (value < 1000.0) ? juce::String (value, 1) + " ms" : juce::String (value, 0) + " ms";},
@@ -141,6 +134,16 @@ juce::AudioProcessorValueTreeState::ParameterLayout TAMPERAudioProcessor::create
     
     
     auto pPhase             = std::make_unique<juce::AudioParameterBool>("phase", "Phase", false);
+    
+    auto pMainMix           = std::make_unique<juce::AudioParameterFloat>("main Mix",
+                                                                          "Mix",
+                                                                          juce::NormalisableRange<float> (0.0, 100.0, 0.01, 1.0),
+                                                                          100.0,
+                                                                          juce::String(),
+                                                                          juce::AudioProcessorParameter::genericParameter,
+                                                                          [](float value, int) {return (value < 100.0) ? juce::String (value, 1) + " %" : juce::String (value, 0) + " %";},
+                                                                          [](juce::String text) {return text.dropLastCharacters (3).getFloatValue();});
+    
     auto pOut               = std::make_unique<juce::AudioParameterFloat>("out",
                                                                           "Out",
                                                                           juce::NormalisableRange<float> (-24.0, 24.0, 0.01f, 1.0),
