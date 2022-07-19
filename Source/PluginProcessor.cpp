@@ -89,7 +89,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout TAMPERAudioProcessor::create
                                                                           [](float value, int) {return (value < 10.0f) ? juce::String (value, 2) + " dB": juce::String (value, 1) + " dB";},
                                                                           [](juce::String text) {return text.dropLastCharacters (3).getFloatValue();});
 
-    auto pModels            = std::make_unique<juce::AudioParameterChoice>("model", "Model Type", disModels, 0);
+    auto pModels            = std::make_unique<juce::AudioParameterInt>("model", "Model Type", 0, 3, 0);
     auto pLowPass           = std::make_unique<juce::AudioParameterFloat>("low pass",
                                                                           "LoPass Freq",
                                                                           juce::NormalisableRange<float> (5000.0, 20000.0, 1.0, 0.45),
@@ -100,7 +100,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout TAMPERAudioProcessor::create
                                                                           [](juce::String text) {return text.dropLastCharacters (3).getFloatValue();});
     
     auto pConv              = std::make_unique<juce::AudioParameterBool>("amp sim", "Cab Sim On", true);
-    auto pSimChoice         = std::make_unique<juce::AudioParameterChoice>("ampsim type", "Cab Type", ampSimSelector, 0);
+    auto pSimChoice         = std::make_unique<juce::AudioParameterInt>("ampsim type", "Cab Type", 0, 5, 0);
     auto pConvMix           = std::make_unique<juce::AudioParameterFloat>("amp sim mix",
                                                                           "Cab Mix",
                                                                           juce::NormalisableRange<float> (0.0, 100.0, 0.01, 1.0),
@@ -345,7 +345,8 @@ void TAMPERAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock
     convolution.prepare(spec);
     
     simType = treeState.getRawParameterValue("ampsim type")->load();
-    irSelection(simType);
+    DBG(simType);
+    irSelection(static_cast<int>(simType));
     
     ConvolveMixerValue = *treeState.getRawParameterValue("amp sim mix");
     ConvolveMix.prepare(spec);
@@ -550,16 +551,16 @@ void TAMPERAudioProcessor::irSelection(int simType)
     switch (simType)
     {
         case 0:
-            convolution.loadImpulseResponse(BinaryData::A_Amp_One_Ribbon_aif, BinaryData::A_Amp_One_Ribbon_aifSize, juce::dsp::Convolution::Stereo::yes, juce::dsp::Convolution::Trim::no, 0, juce::dsp::Convolution::Normalise::no);
+            convolution.loadImpulseResponse(BinaryData::A_Amp_One_Ribbon_aif, BinaryData::A_Amp_One_Ribbon_aifSize, juce::dsp::Convolution::Stereo::no, juce::dsp::Convolution::Trim::no, 0, juce::dsp::Convolution::Normalise::no);
             break;
         case 1:
-            convolution.loadImpulseResponse(BinaryData::B_Amp_One_57_aif, BinaryData::B_Amp_One_57_aifSize, juce::dsp::Convolution::Stereo::yes, juce::dsp::Convolution::Trim::no, 0, juce::dsp::Convolution::Normalise::no);
+            convolution.loadImpulseResponse(BinaryData::B_Amp_One_57_aif, BinaryData::B_Amp_One_57_aifSize, juce::dsp::Convolution::Stereo::no, juce::dsp::Convolution::Trim::no, 0, juce::dsp::Convolution::Normalise::no);
             break;
         case 2:
-            convolution.loadImpulseResponse(BinaryData::C_Amp_Two_Cond_aif, BinaryData::C_Amp_Two_Cond_aifSize, juce::dsp::Convolution::Stereo::yes, juce::dsp::Convolution::Trim::no, 0, juce::dsp::Convolution::Normalise::no);
+            convolution.loadImpulseResponse(BinaryData::C_Amp_Two_Cond_aif, BinaryData::C_Amp_Two_Cond_aifSize, juce::dsp::Convolution::Stereo::no, juce::dsp::Convolution::Trim::no, 0, juce::dsp::Convolution::Normalise::no);
             break;
         case 3:
-            convolution.loadImpulseResponse(BinaryData::D_Amp_Three_Ribbon_aif, BinaryData::D_Amp_Three_Ribbon_aifSize, juce::dsp::Convolution::Stereo::yes, juce::dsp::Convolution::Trim::no, 0, juce::dsp::Convolution::Normalise::no);
+            convolution.loadImpulseResponse(BinaryData::D_Amp_Three_Ribbon_aif, BinaryData::D_Amp_Three_Ribbon_aifSize, juce::dsp::Convolution::Stereo::no, juce::dsp::Convolution::Trim::no, 0, juce::dsp::Convolution::Normalise::no);
             break;
         case 4:
             convolution.loadImpulseResponse(BinaryData::E_Amp_Four_Bass_MD441_aif, BinaryData::E_Amp_Four_Bass_MD441_aifSize, juce::dsp::Convolution::Stereo::no, juce::dsp::Convolution::Trim::no, 0, juce::dsp::Convolution::Normalise::no);
