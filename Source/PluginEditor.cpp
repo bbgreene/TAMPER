@@ -132,7 +132,7 @@ TAMPERAudioProcessorEditor::TAMPERAudioProcessorEditor (TAMPERAudioProcessor& p)
     
     olumay.setFont(juce::Font (16.0f, juce::Font::plain));
     olumay.setJustificationType(juce::Justification::centredLeft);
-    olumay.setColour(juce::Label::textColourId, juce::Colours::coral.brighter());
+    olumay.setColour(juce::Label::textColourId, juce::Colours::black);
     addAndMakeVisible(olumay);
     
     // RESIZING
@@ -187,7 +187,7 @@ void TAMPERAudioProcessorEditor::resized()
     auto versionY = getHeight() * 0.0383032;
     auto versionWidth = getWidth() * 0.169246;
     auto versionHeight = getHeight() * 0.068969;
-    auto olumayX = getWidth() * 0.795;
+    auto olumayX = outBorder.getX();
     
     tamperTitle.setBounds(tamperTitleX, tamperTitleY, tamperTitleWidth, tamperTitleHeight);
     tamperVersion.setBounds(versionX, versionY, versionWidth, versionHeight);
