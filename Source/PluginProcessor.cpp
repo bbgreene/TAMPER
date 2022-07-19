@@ -345,7 +345,6 @@ void TAMPERAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock
     convolution.prepare(spec);
     
     simType = treeState.getRawParameterValue("ampsim type")->load();
-    DBG(simType);
     irSelection(static_cast<int>(simType));
     
     ConvolveMixerValue = *treeState.getRawParameterValue("amp sim mix");
@@ -371,7 +370,6 @@ void TAMPERAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock
     outputModule.prepare(spec);
     outputModule.setRampDurationSeconds(0.02);
     outputModule.setGainDecibels(treeState.getRawParameterValue("out")->load());
-
 }
 
 void TAMPERAudioProcessor::releaseResources()

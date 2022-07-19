@@ -14,11 +14,7 @@ TAMPERAudioProcessorEditor::TAMPERAudioProcessorEditor (TAMPERAudioProcessor& p)
     : AudioProcessorEditor (&p), audioProcessor (p)
 {
     // DIALS, BUTTONS, MENUS & PARAMETER ATTACHMENTS
-    
-    
-    
-    
-    
+
     phase.setToggleStyle(bbg_gui::bbg_Toggle::ToggleStyle::kPhaseToggle);
     phaseAttachement = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(audioProcessor.treeState, "phase", phase);
     addAndMakeVisible(phase);
@@ -215,9 +211,9 @@ void TAMPERAudioProcessorEditor::resized()
     
     auto bypassFiltersX = modelBorder.getX() * 2.5;
     auto filtersX = modelBorder.getX() * 1.80059;
-    auto driveOnX = cabBorder.getX() * 0.61;
-    auto driveX = modelBorder.getX() * 6.7327;// 6.95028;
-    auto modelTypeX = modelBorder.getX() * 6.17758;
+    auto driveOnX = cabBorder.getX() * 0.596;
+    auto driveX = modelBorder.getX() * 6.65;//6.7327;// 6.95028;
+    auto modelTypeX = modelBorder.getX() * 6.07;
     auto modelTypeWidth = getWidth() * 0.149;// 0.1333333; //80
 
     out.setBounds(outBorder.getX() + smallDialGap, bottomRowY, smallDialSize, smallDialSize);
@@ -239,7 +235,7 @@ void TAMPERAudioProcessorEditor::resized()
     drive.setBounds(driveX, middleRowY, smallDialSize, smallDialSize);
     modelType.setBounds(modelTypeX, cabTypeY, modelTypeWidth, buttonHeight);
     
-    auto oSX = getWidth() * 0.229;
+    auto oSX = getWidth() * 0.225;
     auto oSY = getHeight() * 0.82;
     auto oSWidth = getWidth() * 0.102191;
     
