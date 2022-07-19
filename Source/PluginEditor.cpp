@@ -15,35 +15,35 @@ TAMPERAudioProcessorEditor::TAMPERAudioProcessorEditor (TAMPERAudioProcessor& p)
 {
     // DIALS, BUTTONS, MENUS & PARAMETER ATTACHMENTS
     
-    phaseAttachement = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(audioProcessor.treeState, "phase", phase);
-    mixAttachement = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.treeState, "main Mix", mix);
-    outputAttachement = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.treeState, "out", out);
+    
+    
+    
     
     phase.setToggleStyle(bbg_gui::bbg_Toggle::ToggleStyle::kPhaseToggle);
+    phaseAttachement = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(audioProcessor.treeState, "phase", phase);
     addAndMakeVisible(phase);
     mix.setDialStyle(bbg_gui::bbg_Dial::DialStyle::kDialModernStyle);
+    mixAttachement = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.treeState, "main Mix", mix);
     addAndMakeVisible(mix);
     out.setDialStyle(bbg_gui::bbg_Dial::DialStyle::kDialModernStyle);
+    outputAttachement = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.treeState, "out", out);
     addAndMakeVisible(out);
     
-    limiterOnAttachement = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(audioProcessor.treeState, "limiter", limiterOn);
-    thresAttachement = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.treeState, "thres", thres);
-    relAttachement = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.treeState, "release", rel);
-    
     limiterOn.setClickingTogglesState(true);
+    limiterOnAttachement = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(audioProcessor.treeState, "limiter", limiterOn);
     addAndMakeVisible(limiterOn);
     thres.setDialStyle(bbg_gui::bbg_Dial::DialStyle::kDialModernStyle);
+    thresAttachement = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.treeState, "thres", thres);
     addAndMakeVisible(thres);
     rel.setDialStyle(bbg_gui::bbg_Dial::DialStyle::kDialModernStyle);
+    relAttachement = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.treeState, "release", rel);
     addAndMakeVisible(rel);
     
-    cabOnAttachement = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(audioProcessor.treeState, "amp sim", cabOn);
-    cabMixAttachement = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.treeState, "amp sim mix", cabMix);
-    cabTypeAttachement = std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(audioProcessor.treeState, "ampsim type", cabType);
-    
     cabOn.setClickingTogglesState(true);
+    cabOnAttachement = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(audioProcessor.treeState, "amp sim", cabOn);
     addAndMakeVisible(cabOn);
     cabMix.setDialStyle(bbg_gui::bbg_Dial::DialStyle::kDialModernStyle);
+    cabMixAttachement = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.treeState, "amp sim mix", cabMix);
     addAndMakeVisible(cabMix);
     cabType.setText("A Ribbon");
     cabType.addItem("A Ribbon", 1);
@@ -52,35 +52,35 @@ TAMPERAudioProcessorEditor::TAMPERAudioProcessorEditor (TAMPERAudioProcessor& p)
     cabType.addItem("C Ribbon", 4);
     cabType.addItem("D Bass 1", 5);
     cabType.addItem("D Bass 2", 6);
+    cabTypeAttachement = std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(audioProcessor.treeState, "ampsim type", cabType);
     addAndMakeVisible(cabType);
     
-    filterOnOffAttachement = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(audioProcessor.treeState, "filtersOnOff", bypassFilters);
-    hiPassAttachement = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.treeState, "high pass", hiPass);
-    loPassAttachement = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.treeState, "low pass", loPass);
-    driveOnAttachement = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(audioProcessor.treeState, "driveOn", driveOn);
-    modelTypeAttachement = std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(audioProcessor.treeState, "model", modelType);
-    driveAttachement = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.treeState, "drive", drive);
-    
     bypassFilters.setClickingTogglesState(true);
+    filterOnOffAttachement = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(audioProcessor.treeState, "filtersOnOff", bypassFilters);
     addAndMakeVisible(bypassFilters);
     hiPass.setDialStyle(bbg_gui::bbg_Dial::DialStyle::kDialModernStyle);
+    hiPassAttachement = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.treeState, "high pass", hiPass);
     addAndMakeVisible(hiPass);
     loPass.setDialStyle(bbg_gui::bbg_Dial::DialStyle::kDialModernStyle);
+    loPassAttachement = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.treeState, "low pass", loPass);
     addAndMakeVisible(loPass);
     oS.setClickingTogglesState(true);
+    oSAttachement = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(audioProcessor.treeState, "oversample", oS);
     addAndMakeVisible(oS);
     driveOn.setClickingTogglesState(true);
+    driveOnAttachement = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(audioProcessor.treeState, "driveOn", driveOn);
     addAndMakeVisible(driveOn);
     drive.setDialStyle(bbg_gui::bbg_Dial::DialStyle::kDialModernStyle);
+    driveAttachement = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.treeState, "drive", drive);
     addAndMakeVisible(drive);
     modelType.setText("Soft Clip");
     modelType.addItem("Soft Clip", 1);
     modelType.addItem("Hard Clip", 2);
     modelType.addItem("Saturation", 3);
     modelType.addItem("Broken", 4);
+    modelTypeAttachement = std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(audioProcessor.treeState, "model", modelType);
     addAndMakeVisible(modelType);
     
-    oSAttachement = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(audioProcessor.treeState, "oversample", oS);
     
     //DIAL LABEL ATTACHMENTS
     outLabel.attachToComponent(&out, false);
