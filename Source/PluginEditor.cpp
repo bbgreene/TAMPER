@@ -116,19 +116,19 @@ TAMPERAudioProcessorEditor::TAMPERAudioProcessorEditor (TAMPERAudioProcessor& p)
     addAndMakeVisible(outBorder);
     
     // TITLE
-    tamperTitle.setFont(juce::Font (30.0f, juce::Font::plain));
+    tamperTitle.setFont(juce::Font (26.0f, juce::Font::plain));
     tamperTitle.setJustificationType(juce::Justification::centredLeft);
     tamperTitle.setColour(juce::Label::textColourId, juce::Colours::mintcream);
     addAndMakeVisible(tamperTitle);
     
-    tamperVersion.setFont(juce::Font (16.0f, juce::Font::plain));
+    tamperVersion.setFont(juce::Font (15.0f, juce::Font::plain));
     tamperVersion.setJustificationType(juce::Justification::centredLeft);
     tamperVersion.setColour(juce::Label::textColourId, juce::Colours::lightslategrey.brighter());
     addAndMakeVisible(tamperVersion);
     
-    olumay.setFont(juce::Font (16.0f, juce::Font::plain));
+    olumay.setFont(juce::Font (15.0f, juce::Font::plain));
     olumay.setJustificationType(juce::Justification::centredLeft);
-    olumay.setColour(juce::Label::textColourId, juce::Colours::black);
+    olumay.setColour(juce::Label::textColourId, juce::Colours::steelblue.brighter());
     addAndMakeVisible(olumay);
     
     // RESIZING
@@ -177,9 +177,9 @@ void TAMPERAudioProcessorEditor::resized()
     
     auto tamperTitleX = leftMarginGap;
     auto tamperTitleY = 5;
-    auto tamperTitleWidth = 160;
+    auto tamperTitleWidth = 140;
     auto tamperTitleHeight = 30;
-    auto versionX = 170;
+    auto versionX = 150;
     auto versionY = 10;
     auto versionWidth = getWidth() * 0.169246;
     auto versionHeight = getHeight() * 0.068969;
