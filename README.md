@@ -1,54 +1,39 @@
 # T A M P E R
 
-A multi functional reverb vst3 plugin made with JUCE.
+A waveshaping and convolution distortion vst3 plugin made with JUCE.
 
-![COLOURAUM](https://github.com/bbgreene/COLOURAUM/blob/master/Screenshots/COLOURAUM%20-%20gui.png?raw=true
- "COLOURAUM")
+![TAMPER](https://github.com/bbgreene/TAMPER/blob/master/Screenshots/TAMPER%20-%20gui.png?raw=true
+ "TAMPER")
  
  
  
 ** Parameters**
 
-<b>FILTER:</b>
+<b>MODEL:</b>
 
- High: high pass filter (20 - 2000 Hz) pre reverb\
- Low: low pass filter (5000 - 20000 Hz) pre reverb
+ On/Off: toggles filters on or off
+ High: high pass filter (20 - 2000 Hz) pre waveshaping distortion\
+ Low: low pass filter (5000 - 20000 Hz) post waveshaping distortion\
+ On/Off: toggles waveshaping distortion on or off\
+ Drive: amount of drive (distortion) applied to the incoming signal (0 - 24dB)\
+ Model Type: the type of waveshaping applied (soft clip, hard clip, saturation, broken)\
+ Oversample: toggles oversampling on or off. If on, then the signal will be oversampled x4 before any distortion processing then downsampled post distortion processing to avoid aliasing.
  
- <b>EARLY REFLECTIONS:</b>
+ <b>CAB SIM:</b>
  
- Amount: amount of early reflections sent to the reverb\
- Type: the type of early reflections associated with a certain type of space\
- Mod Rate: the rate of modulation applied to the early reflection times (0.01 - 100 Hz)\
- Mod Depth: the amount of modulation applied to the early reflection times
+ On/Off: toggles the cabinet simulator on or off\
+ Cab Mix: adjusts the amount of waveshaped signal is sent into the cabinet simulation\
+ Cab Type: a selection of impulse responses used for the convolution process\
  
- <b>REVERB:</b>
+ <b>LIMITER:</b>
  
- Size: the size of the room\
- Freeze: the reverb is put into a continuous feedback loop\
- Predelay: controls the delay time before the onset of the first early reflection (0 - 200ms)\
- Damp: the amount of absorption of high frequencies in the reverb
+ On/Off: toggles the limiter on or off\
+ Threshold: sets the threshold in dB of the limiter (0 to  -10dB)\
+ Release: sets the release time in milliseconds of the limiter (1 - 1000ms)\
  
- <b>GATE:</b>
- 
- On/Off: toggles the gate processing on or off\
- Threshold: sets the threshold in dB of the gate (-20 - 0dB)\
- Ratio: sets the ratio of the gate (1:1 - 5:1)\
- Attack: sets the attack time in milliseconds of the gate (1 - 200ms)\
- Release: sets the release time in milliseconds of the gate (1 - 3000ms)
- 
- 
- <b>TREMOLO:</b>
- 
- On/Off: toggles the tremolo processing on or off\
- Pre/Post: toggles the tremolo processing pre reverb or post reverb\
- Distortion: the amount of distortion applied to the signal pre tremolo\
- Wave: Choice of waveforms (sine, triangle, square, ring) for LFO 1. Ring changes the effect to ring modulation\
- Rate: the rate of amplitude modulation applied to the signal (0.01 - 100 Hz)\
- Rate: the amount of amplitude modulation applied to the signal
- 
- <b>OUTPUT:</b>
+ <b>OUT:</b>
  
  Mix: adjusts the balance between the input signal and the processed signal\
- Width: adjusts the stereo width of the processed signal
+ Output: boosts of attenuates the output of the plugin (-24 to +24dB)
  
  Next steps: VST3 and AU installation builds for macOs (Intel, M1, M2) and Windows
