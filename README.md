@@ -11,7 +11,7 @@ A waveshaping and convolution distortion vst3 plugin made with JUCE.
 
 <b>MODEL:</b>
 
- On/Off: toggles filters on or off
+ On/Off: toggles filters on or off\
  High: high pass filter (20 - 2000 Hz) pre waveshaping distortion\
  Low: low pass filter (5000 - 20000 Hz) post waveshaping distortion\
  On/Off: toggles waveshaping distortion on or off\
@@ -23,17 +23,17 @@ A waveshaping and convolution distortion vst3 plugin made with JUCE.
  
  On/Off: toggles the cabinet simulator on or off\
  Cab Mix: adjusts the amount of waveshaped signal is sent into the cabinet simulation\
- Cab Type: a selection of impulse responses used for the convolution process\
+ Cab Type: a selection of impulse responses used for the convolution process
  
  <b>LIMITER:</b>
  
  On/Off: toggles the limiter on or off\
  Threshold: sets the threshold in dB of the limiter (0 to  -10dB)\
- Release: sets the release time in milliseconds of the limiter (1 - 1000ms)\
+ Release: sets the release time in milliseconds of the limiter (1 - 1000ms)
  
  <b>OUT:</b>
  
  Mix: adjusts the balance between the input signal and the processed signal\
- Output: boosts of attenuates the output of the plugin (-24 to +24dB)
+ Output: boosts or attenuates the output of the plugin (-24 to +24dB)
  
  Next steps: VST3 and AU installation builds for macOs (Intel, M1, M2) and Windows
