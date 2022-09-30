@@ -2,7 +2,7 @@
 
 <JUCERPROJECT id="AB4uIY" name="TAMPER" projectType="audioplug" useAppConfig="0"
               addUsingNamespaceToJuceHeader="0" jucerFormatVersion="1" pluginManufacturer="Olumay dsp"
-              cppLanguageStandard="17">
+              cppLanguageStandard="17" companyName="Olumay dsp" companyWebsite="https://bbgreene.github.io/">
   <MAINGROUP id="ZNQEz3" name="TAMPER">
     <GROUP id="{AA9AB129-B017-2A0E-31EF-984886F0CA7B}" name="IRs">
       <FILE id="rJtNcR" name="A_Amp_One_Ribbon.aif" compile="0" resource="1"
