@@ -76,8 +76,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout TAMPERAudioProcessor::create
                                                                           20.0,
                                                                           juce::String(),
                                                                           juce::AudioProcessorParameter::genericParameter,
-                                                                          [](float value, int) {return (value < 1000.0) ? juce::String (value, 0) + " Hz" : juce::String (value / 1000.0f, 2) + " kHz";},
-                                                                          [](juce::String text) {return text.dropLastCharacters (3).getFloatValue();});;
+                                                                          [](float value, int) {return (value < 1000.0) ? juce::String (value, 0) + " Hz" : juce::String (value / 1000.0f, 2) + " kHz";});
     
     auto pDriveOn           = std::make_unique<juce::AudioParameterBool>("driveOn", "Drive On", true);
     auto pDrive             = std::make_unique<juce::AudioParameterFloat>("drive",
@@ -86,8 +85,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout TAMPERAudioProcessor::create
                                                                           0.0,
                                                                           juce::String(),
                                                                           juce::AudioProcessorParameter::genericParameter,
-                                                                          [](float value, int) {return (value < 10.0f) ? juce::String (value, 2) + " dB": juce::String (value, 1) + " dB";},
-                                                                          [](juce::String text) {return text.dropLastCharacters (3).getFloatValue();});
+                                                                          [](float value, int) {return (value < 10.0f) ? juce::String (value, 2) + " dB": juce::String (value, 1) + " dB";});
 
     auto pModels            = std::make_unique<juce::AudioParameterInt>("model", "Model Type", 0, 3, 0);
     auto pLowPass           = std::make_unique<juce::AudioParameterFloat>("low pass",
@@ -96,8 +94,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout TAMPERAudioProcessor::create
                                                                           20000.0,
                                                                           juce::String(),
                                                                           juce::AudioProcessorParameter::genericParameter,
-                                                                          [](float value, int) {return (value < 10000.0) ? juce::String (value / 1000.0f, 2) + " kHz" : juce::String (value / 1000.0f, 1) + " kHz";},
-                                                                          [](juce::String text) {return text.dropLastCharacters (3).getFloatValue();});
+                                                                          [](float value, int) {return (value < 10000.0) ? juce::String (value / 1000.0f, 2) + " kHz" : juce::String (value / 1000.0f, 1) + " kHz";});
     
     auto pConv              = std::make_unique<juce::AudioParameterBool>("amp sim", "Cab Sim On", true);
     auto pSimChoice         = std::make_unique<juce::AudioParameterInt>("ampsim type", "Cab Type", 0, 5, 0);
@@ -107,8 +104,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout TAMPERAudioProcessor::create
                                                                           100.0,
                                                                           juce::String(),
                                                                           juce::AudioProcessorParameter::genericParameter,
-                                                                          [](float value, int) {return (value < 100.0) ? juce::String (value, 1) + " %" : juce::String (value, 0) + " %";},
-                                                                          [](juce::String text) {return text.dropLastCharacters (3).getFloatValue();});
+                                                                          [](float value, int) {return (value < 100.0) ? juce::String (value, 1) + " %" : juce::String (value, 0) + " %";});
     
     
     
@@ -120,8 +116,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout TAMPERAudioProcessor::create
                                                                           0.0,
                                                                           juce::String(),
                                                                           juce::AudioProcessorParameter::genericParameter,
-                                                                          [](float value, int) {return (value > -10.0) ? juce::String (value, 2) + " dB" : juce::String (value, 1) + " dB";},
-                                                                          [](juce::String text) {return text.dropLastCharacters (3).getFloatValue();});
+                                                                          [](float value, int) {return (value > -10.0) ? juce::String (value, 2) + " dB" : juce::String (value, 1) + " dB";});
     
     auto pLimitRel          = std::make_unique<juce::AudioParameterFloat>("release",
                                                                           "Release",
@@ -129,8 +124,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout TAMPERAudioProcessor::create
                                                                           100.0,
                                                                           juce::String(),
                                                                           juce::AudioProcessorParameter::genericParameter,
-                                                                          [](float value, int) {return (value < 1000.0) ? juce::String (value, 1) + " ms" : juce::String (value, 0) + " ms";},
-                                                                          [](juce::String text) {return text.dropLastCharacters (3).getFloatValue();});
+                                                                          [](float value, int) {return (value < 1000.0) ? juce::String (value, 1) + " ms" : juce::String (value, 0) + " ms";});
     
     
     auto pPhase             = std::make_unique<juce::AudioParameterBool>("phase", "Phase", false);
@@ -141,8 +135,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout TAMPERAudioProcessor::create
                                                                           100.0,
                                                                           juce::String(),
                                                                           juce::AudioProcessorParameter::genericParameter,
-                                                                          [](float value, int) {return (value < 100.0) ? juce::String (value, 1) + " %" : juce::String (value, 0) + " %";},
-                                                                          [](juce::String text) {return text.dropLastCharacters (3).getFloatValue();});
+                                                                          [](float value, int) {return (value < 100.0) ? juce::String (value, 1) + " %" : juce::String (value, 0) + " %";});
     
     auto pOut               = std::make_unique<juce::AudioParameterFloat>("out",
                                                                           "Out",
@@ -150,8 +143,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout TAMPERAudioProcessor::create
                                                                           0.0,
                                                                           juce::String(),
                                                                           juce::AudioProcessorParameter::genericParameter,
-                                                                          [](float value, int) {return (value > -10.0f && value < 10.0f) ? juce::String (value, 2) + " dB" : juce::String (value, 1) + " dB";},
-                                                                          [](juce::String text) {return text.dropLastCharacters (3).getFloatValue();});
+                                                                          [](float value, int) {return (value > -10.0f && value < 10.0f) ? juce::String (value, 2) + " dB" : juce::String (value, 1) + " dB";});
     
     auto pOSToggle          = std::make_unique<juce::AudioParameterBool>("oversample", "Oversample", false);
     
